@@ -39,7 +39,7 @@ export const GroupMatches: React.FC<Props> = ({ matches, championshipId, groupNa
     team: { fontSize: '28px', color: '#fff' },
     winner: { fontSize: '28px', color: '#2bd96b', fontWeight: 'bold' },
     matchScore: { fontSize: '32px', fontWeight: 'bold', color: '#fff' },
-    playButton: { fontSize: '20px', height: 'auto', padding: '8px 24px' },
+    playButton: { fontSize: '20px', height: 'auto', padding: '8px 24px', color: '#000' },
   };
 
   return (
