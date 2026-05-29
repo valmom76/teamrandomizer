@@ -10,6 +10,7 @@ const http = axios.create({
   timeout: 120000,
 });
 
+// Interceptor de requisição: adiciona o token JWT em todas as chamadas
 http.interceptors.request.use((config) => {
   const token = authStore.getToken();
   if (token) {
@@ -17,5 +18,22 @@ http.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Interceptor de resposta: captura erros 401 e redireciona para login
+http.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token inválido ou expirado - limpa storage e redireciona
+      authStore.clear();
+      
+      // Só redireciona se não estiver na página de login
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export { http };

@@ -113,6 +113,7 @@ const DEFAULT_TEAM_COUNT = 8;
 const DEFAULT_PLAYERS_PER_TEAM = 4;
 
 export default function DbTeamGenerator() {
+  // ---------- estados ----------
   const [step, setStep] = useState<StepKey>("players");
 
   const [playersLoading, setPlayersLoading] = useState(false);
@@ -153,6 +154,7 @@ export default function DbTeamGenerator() {
 
   const needed = teamCount * playersPerTeam;
 
+  // ---------- dados derivados ----------
   const activePlayers = useMemo(() => players.filter((p) => p.active), [players]);
   const activeSkills = useMemo(() => skills.filter((s) => s.active), [skills]);
 
@@ -176,6 +178,7 @@ export default function DbTeamGenerator() {
   const canGoNext = selectedPlayerIds.length >= needed;
   const canGenerate = canGoNext && selectedSkills.length > 0;
 
+  // ---------- helpers de normalização ----------
   const findPlayerByName = useCallback(
     (name?: string) => {
       if (!name) return undefined;
@@ -232,6 +235,7 @@ export default function DbTeamGenerator() {
     [normalizeTeams]
   );
 
+  // ---------- carregamento de dados ----------
   const loadPlayers = useCallback(async () => {
     setPlayersLoading(true);
     try {
@@ -276,6 +280,7 @@ export default function DbTeamGenerator() {
     if (result?.teams) setTeams(result.teams);
   }, [result]);
 
+  // ---------- handlers de seleção ----------
   const togglePlayer = useCallback(
     (playerId: UUID, checked: boolean) => {
       setSelectedPlayerIds((prev) => {
@@ -331,7 +336,7 @@ export default function DbTeamGenerator() {
       selectedSkills,
       sexBalance: { enabled: sexBalanceEnabled, maxMaleDiff },
       sexMultiplier: { M: multM, F: multF },
-      requiredPositions: balancePositions ? requiredPositions : [],   // <- ENVIA POSIÇÕES
+      requiredPositions: balancePositions ? requiredPositions : [],
     };
     setGenerating(true);
     setResult(null);
@@ -573,14 +578,13 @@ export default function DbTeamGenerator() {
     </div>
   );
 
-  // ==================== UI ====================
+  // ==================== UI (AJUSTADA) ====================
   const selectedPlayersCount = selectedPlayerIds.length;
   const selectedSkillsCount = selectedSkills.length;
 
   const TopBar = (
     <div className="ui-card">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-        {/* Lado esquerdo: inputs de configuração */}
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
           <div className="input-group-compact" style={{ margin: 0 }}>
             <label style={{ marginRight: 6 }}>Times:</label>
@@ -591,8 +595,6 @@ export default function DbTeamGenerator() {
             <InputNumber min={2} value={playersPerTeam} onChange={(v) => setPlayersPerTeam(Number(v || 2))} style={{ width: 120 }} />
           </div>
         </div>
-
-        {/* Lado direito: botões de ação */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {step !== "result" && (
             <button
@@ -610,8 +612,6 @@ export default function DbTeamGenerator() {
           </button>
         </div>
       </div>
-
-      {/* Linha informativa */}
       <div className="config-info-compact" style={{ marginTop: 10 }}>
         Precisa de <b>{needed}</b> jogadores • Selecionados: <b>{selectedPlayersCount}</b>
         {step !== "players" && <> • Skills selecionadas: <b>{selectedSkillsCount}</b></>}
@@ -620,9 +620,19 @@ export default function DbTeamGenerator() {
   );
 
   const PlayersStep = (
-    <div className="ui-card" style={{ padding: 15 }}>
-      <div className="players-header-compact">
-        <h3>1) Selecionar Jogadores</h3>
+    <div
+      className="ui-card"
+      style={{
+        padding: 15,
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+    >
+      <div className="players-header-compact" style={{ flexShrink: 0 }}>
+        <h3>Selecionar Jogadores</h3>
         <span className="players-count ui-badge">{selectedPlayersCount}</span>
       </div>
       <button
@@ -631,7 +641,7 @@ export default function DbTeamGenerator() {
         onClick={goNext}
         disabled={!canGoNext}
         title={!canGoNext ? `Selecione ${needed} jogadores` : "Ir para skills"}
-        style={{ marginBottom: 10 }}
+        style={{ marginBottom: 10, flexShrink: 0, width: 200 }}
       >
         Próximo: Skills
       </button>
@@ -639,14 +649,18 @@ export default function DbTeamGenerator() {
         placeholder="Buscar jogador..."
         value={playerQuery}
         onChange={(e) => setPlayerQuery(e.target.value)}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: 12, flexShrink: 0 }}
       />
       {playersLoading ? (
-        <div style={{ padding: 16 }}><Spin /></div>
+        <div style={{ padding: 16, flexShrink: 0 }}><Spin /></div>
       ) : (
         <div
           className="players-selection-grid ui-scroll"
-          style={{ maxHeight: "58vh", overflow: "auto" }}
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            minHeight: 0,
+          }}
         >
           {filteredPlayers.map((p) => {
             const checked = selectedPlayerIds.includes(p.id);
@@ -698,6 +712,7 @@ export default function DbTeamGenerator() {
           justifyContent: "space-between",
           alignItems: "center",
           gap: 10,
+          flexShrink: 0,
         }}
       >
         <Text style={{ color: "var(--text-2)", fontWeight: 800 }}>
@@ -711,7 +726,7 @@ export default function DbTeamGenerator() {
     <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 20 }}>
       <div className="ui-card" style={{ padding: 15 }}>
         <div className="players-header-compact">
-          <h3>2) Selecionar Skills</h3>
+          <h3>Selecionar Skills</h3>
           <span className="players-count ui-badge">{selectedSkillsCount}</span>
         </div>
         <Input placeholder="Buscar skill..." value={skillQuery} onChange={(e) => setSkillQuery(e.target.value)} style={{ marginBottom: 12 }} />
@@ -773,7 +788,6 @@ export default function DbTeamGenerator() {
               <Text style={{ color: "#fff", fontWeight: 900 }}>Multiplicador F:</Text>
               <InputNumber min={0.5} max={2} step={0.01} value={multF} onChange={(v) => setMultF(Number(v ?? 0.92))} />
             </div>
-            {/* ---- NOVO BLOCO DE POSIÇÕES ---- */}
             <div style={{ borderTop: "1px solid var(--border)", marginTop: 12, paddingTop: 12 }}>
               <Checkbox
                 checked={balancePositions}
@@ -798,7 +812,6 @@ export default function DbTeamGenerator() {
                 </div>
               )}
             </div>
-            {/* ----------------------------- */}
             <div className="config-info-compact" style={{ marginTop: 10 }}>Dica: ajuste os multiplicadores para compensar diferença de nível entre M/F.</div>
           </div>
         </div>
@@ -838,8 +851,16 @@ export default function DbTeamGenerator() {
   );
 
   return (
-    <div className="main-content" style={{ gridTemplateColumns: "1fr" }}>
-      <div className="controls-column ui-scroll" style={{ overflow: "auto" }}>
+    <div className="main-content" style={{ gridTemplateColumns: "1fr", height: "calc(100vh - 90px)", overflow: "hidden" }}>
+      <div
+        className="controls-column"
+        style={{
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
         {TopBar}
         {step === "players" && PlayersStep}
         {step === "skills" && SkillsStep}
@@ -863,7 +884,6 @@ export default function DbTeamGenerator() {
           onConfirm={handleStartSession}
         />
       )}
-      {/* Modal de ajuste em tela cheia */}
       <Modal
         title={
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
