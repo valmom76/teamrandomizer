@@ -105,7 +105,7 @@ export const ManualTeamGenerator: React.FC = () => {
           <Card
             title={<span style={{ color: '#2bd96b' }}>Configuração</span>}
             style={{ backgroundColor: '#1a1a1a', borderColor: '#333', height: '100%', display: 'flex', flexDirection: 'column' }}
-            bodyStyle={{ flex: 1, overflow: 'auto', padding: 16 }}
+            styles={{ body: { flex: 1, overflow: 'auto', padding: 16 }}}
           >
             <div style={{ marginBottom: 16 }}>
               <label style={{ color: '#fff' }}>Número de times: </label>
@@ -127,7 +127,7 @@ export const ManualTeamGenerator: React.FC = () => {
           <Card
             title={<span style={{ color: '#2bd96b' }}>Jogadores Disponíveis</span>}
             style={{ backgroundColor: '#1a1a1a', borderColor: '#333', height: '100%', display: 'flex', flexDirection: 'column' }}
-            bodyStyle={{ flex: 1, overflow: 'auto', padding: 12 }}
+            styles={{ body: { flex: 1, overflow: 'auto', padding: 12 }}}
           >
             <List
               dataSource={players.filter(p => !Object.values(teams).flat().includes(p.id))}
@@ -156,15 +156,15 @@ export const ManualTeamGenerator: React.FC = () => {
           <Card
             title={<span style={{ color: '#2bd96b' }}>Times</span>}
             style={{ backgroundColor: '#1a1a1a', borderColor: '#333', height: '100%', display: 'flex', flexDirection: 'column' }}
-            bodyStyle={{ flex: 1, overflow: 'auto', padding: 12 }}
+            styles={{ body: { flex: 1, overflow: 'auto', padding: 12 }}}
           >
             {Object.entries(teams).map(([idx, playerIds]) => (
               <Card
                 key={idx}
                 type="inner"
                 title={<span style={{ color: '#2bd96b' }}>Time {idx}</span>}
-                style={{ marginBottom: 16, backgroundColor: '#262626', borderColor: '#444' }}
-                bodyStyle={{ padding: 12 }}
+                style={{ marginBottom: 16, backgroundColor: '#262626', borderColor: '#444' }}                
+                styles={{ body: { padding: 12 }}}
               >
                 <Input
                   placeholder={`Nome do Time`}

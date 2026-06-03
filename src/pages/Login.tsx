@@ -18,7 +18,10 @@ export default function Login() {
         userId: res.userId,
         role: res.role,
         tenantSlug: values.tenantSlug,
-        userName: res.userName, 
+        userName: res.userName,
+        primaryColor: res.primaryColor,      // ← NOVO
+        secondaryColor: res.secondaryColor,  // ← NOVO
+        logoUrl: res.logoUrl,                // ← NOVO
       });
 
       message.success("Bem-vindo!");

@@ -1,6 +1,15 @@
 import { http } from "./http";
 
-export type AuthResponse = { token: string; tenantId: string; userId: string; role: string };
+export type AuthResponse = {
+  token: string;
+  tenantId: string;
+  userId: string;
+  role: string;
+  userName?: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  logoUrl?: string | null;
+};
 
 export async function registerTenant(payload: {
   tenantName: string;
@@ -13,7 +22,7 @@ export async function registerTenant(payload: {
 }
 
 export async function login(payload: { slug: string; email: string; password: string }) {
-  const { data } = await http.post("/auth/login", payload);
+  const { data } = await http.post<AuthResponse>("/auth/login", payload);
   return data;
 }
 
@@ -23,6 +32,6 @@ export function loginBySlug(payload: {
   password: string;
 }) {
   return http
-    .post("/auth/login-by-slug", payload)
+    .post<AuthResponse>("/auth/login-by-slug", payload)
     .then((r) => r.data);
 }

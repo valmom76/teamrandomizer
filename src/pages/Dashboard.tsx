@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Card, Row, Col, Typography, Statistic, Button, Spin, Tag, List, Modal, Table, Space
+  Card, Row, Col, Typography, Statistic, Button, Spin, Tag, List, Modal, Table
 } from 'antd';
 import {
   TrophyOutlined,
@@ -42,7 +42,7 @@ const StatCard: React.FC<{
     <Statistic
       title={<span style={{ color: '#aaa', fontSize: 16 }}>{title}</span>}
       value={value}
-      valueStyle={{ color, fontSize: 36, fontWeight: 'bold' }}
+      styles={{ content: { color, fontSize: 36, fontWeight: 'bold' } }}
       prefix={icon}
     />
   </Card>
@@ -244,51 +244,53 @@ export default function Dashboard() {
           border: '1px solid #333',
           borderRadius: 8,
         }}
-        headStyle={{ borderBottom: '1px solid #333' }}
+        styles={{ header: { borderBottom: "1px solid #333" } }}
       >
-        <List
-          dataSource={championships}
-          renderItem={(champ: any) => (
-            <List.Item
-              style={{
-                borderBottom: '1px solid #333',
-                padding: '16px 0',
-                cursor: 'pointer',
-              }}
-              onClick={() => navigate(`/championships/${champ.id}`)}
-              actions={[
-                <Tag
-                  color={statusColor[champ.status]}
-                  style={{ fontSize: 14, padding: '4px 12px' }}
-                >
-                  {statusLabel[champ.status]}
-                </Tag>,
-              ]}
-            >
-              <List.Item.Meta
-                title={
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {championships.length > 0 ? (
+            championships.map((champ: any) => (
+              <div
+                key={champ.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid #333',
+                  padding: '16px 0',
+                  cursor: 'pointer',
+                }}
+                onClick={() => navigate(`/championships/${champ.id}`)}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <Text strong style={{ color: '#fff', fontSize: 18 }}>
                     {champ.name}
                   </Text>
-                }
-                description={
-                  <Space direction="vertical" size={2}>
+                  <div>
                     <Text style={{ color: '#aaa' }}>
                       {champ.teamCount} times · {champ.groupsCount} grupos
                     </Text>
+                    <br />
                     <Text style={{ color: '#888', fontSize: 12 }}>
                       Criado em {new Date(champ.createdAt).toLocaleDateString()}
                     </Text>
-                  </Space>
-                }
-              />
-            </List.Item>
+                  </div>
+                </div>
+                <Tag
+                  color={statusColor[champ.status]}
+                  style={{ fontSize: 14, padding: '4px 12px', alignSelf: 'center' }}
+                >
+                  {statusLabel[champ.status]}
+                </Tag>
+              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: 20, color: '#aaa' }}>
+              Nenhum campeonato encontrado
+            </div>
           )}
-          locale={{ emptyText: 'Nenhum campeonato encontrado' }}
-        />
+        </div>
       </Card>
 
-      {/* Modal de jogadores inativos */}
       <Modal
         title={<span style={{ color: '#f5222d' }}>Jogadores Inativos (mais de 30 dias)</span>}
         open={inactiveModalOpen}
@@ -296,7 +298,7 @@ export default function Dashboard() {
         footer={null}
         width={600}
         style={{ top: 20 }}
-        bodyStyle={{ backgroundColor: '#1a1a1a' }}
+        styles={{ body: { backgroundColor: '#1a1a1a' }}}
         closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
       >
         <Table

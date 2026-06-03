@@ -58,7 +58,7 @@ export const ChampionshipList: React.FC = () => {
     <Card 
       title={<span style={{ color: '#2bd96b', fontSize: 24, fontWeight: 'bold' }}>Campeonatos</span>}
       style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: 8 }}
-      headStyle={{ borderBottom: '1px solid #333' }}
+      styles={{ header: { borderBottom: '1px solid #333' } }}
     >
       <Table 
         dataSource={data} 

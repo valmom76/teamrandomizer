@@ -1,10 +1,13 @@
 export type AuthState = {
   token: string | null;
   tenantId: string | null;
-  tenantSlug?: string | null; // ✅ opcional
+  tenantSlug?: string | null;
   userId: string | null;
   role: string | null;
-  userName?: string | null; // ✅ opcional
+  userName?: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  logoUrl?: string | null;
 };
 
 export const authStore = {
@@ -13,7 +16,19 @@ export const authStore = {
   },
   get(): AuthState {
     const raw = localStorage.getItem("auth");
-    return raw ? (JSON.parse(raw) as AuthState) : { token: null, tenantId: null, tenantSlug: null, userId: null, role: null, userName: null };
+    return raw
+      ? (JSON.parse(raw) as AuthState)
+      : {
+          token: null,
+          tenantId: null,
+          tenantSlug: null,
+          userId: null,
+          role: null,
+          userName: null,
+          primaryColor: null,    
+          secondaryColor: null,  
+          logoUrl: null,         
+        };
   },
   getToken() {
     return this.get().token;

@@ -366,7 +366,7 @@ export default function PlayerPerformancePage() {
           borderColor: '#333',
           borderRadius: 8,
         }}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 }}}
       >
         <Table
           dataSource={filtered}
@@ -386,7 +386,7 @@ export default function PlayerPerformancePage() {
         footer={null}
         width={900}
         style={{ top: 20 }}
-        bodyStyle={{ backgroundColor: '#1a1a1a', padding: '24px' }}
+        styles={{ body: { backgroundColor: '#1a1a1a', padding: '24px' }}}
       >
         {evolutionLoading ? (
           <Spin />

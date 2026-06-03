@@ -339,7 +339,7 @@ export default function TeamGenerator() {
             className="controls-column ui-scroll"
             style={{ overflow: "auto" }}
           >
-            <Card style={darkCardStyle} headStyle={headerStyle}>
+            <Card style={darkCardStyle} styles={{ header: { ...headerStyle } }}>
               <FileUpload key={key} onFileUpload={handleFileUpload} />
               {fileName && (
                 <div style={{ marginTop: 12 }}>
@@ -357,7 +357,7 @@ export default function TeamGenerator() {
                   title={
                     <span style={headerStyle}>⚙️ Configuração</span>
                   }
-                  headStyle={{ borderBottom: "1px solid #333" }}
+                  styles={{ header: { borderBottom: "1px solid #333" } }}
                 >
                   <div style={{ marginBottom: 16 }}>
                     <Text style={{ color: "#aaa", fontSize: 16 }}>
@@ -443,7 +443,7 @@ export default function TeamGenerator() {
                       <TeamOutlined /> Jogadores Carregados
                     </span>
                   }
-                  headStyle={{ borderBottom: "1px solid #333" }}
+                  styles={{ header: { borderBottom: "1px solid #333" } }}
                 >
                   <div className="columns-grid">
                     <PlayerColumn
@@ -484,7 +484,7 @@ export default function TeamGenerator() {
                   <ThunderboltOutlined /> Times Gerados (TXT)
                 </span>
               }
-              headStyle={{ borderBottom: "1px solid #333" }}
+              styles={{ header: { borderBottom: "1px solid #333" } }}
             >
               {hasTeamsTxt ? (
                 <>

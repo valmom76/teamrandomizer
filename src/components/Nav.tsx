@@ -34,6 +34,10 @@ export default function Nav({ collapsed, onToggle }: NavProps) {
   const auth = authStore.get();
   const groupName = auth.tenantSlug || slug || "Team Generator";
 
+  console.log(auth.logoUrl);
+  
+  const logoSrc = auth.logoUrl || "/BoraVer.svg";
+
   const base = slug ? `/t/${slug}` : "";
 
   const items = useMemo(
@@ -86,7 +90,8 @@ export default function Nav({ collapsed, onToggle }: NavProps) {
     >
       {/* BRAND */}
       <div className={`nav-brand ${collapsed ? "collapsed" : ""}`}>
-        <img src="/BoraVer.svg" alt="Logo" className="nav-logo" />
+        {/* Logo customizável por tenant */}
+        <img src={logoSrc} alt="Logo" className="nav-logo" />
 
         {!collapsed && (
           <div className="nav-brand-text">

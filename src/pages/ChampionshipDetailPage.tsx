@@ -7,7 +7,6 @@ import { useGameSession } from '../hooks/useGameSession';
 import { GroupStandings } from '../components/championship/GroupStandings';
 import { GroupMatches } from '../components/championship/GroupMatches';
 import { KnockoutBracket } from '../components/championship/KnockoutBracket';
-import { useMatchUpdates } from '../hooks/useMatchUpdates';
 
 const getGroupLetter = (index: number): string => {
   return String.fromCharCode(64 + index); // 1 -> A, 2 -> B, etc.
@@ -49,9 +48,6 @@ const ChampionshipDetailsPage: React.FC = () => {
       }
     };
   }, []);
-
-  // Conexão SSE (apenas quando a sessão está ativa)
-  useMatchUpdates(id ?? '', handleMatchUpdate, !!id);
 
   if (isLoading) return <Spin />;
   if (error) return <Alert message="Erro ao carregar detalhes" type="error" />;
