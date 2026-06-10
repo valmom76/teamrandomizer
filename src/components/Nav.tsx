@@ -33,10 +33,28 @@ export default function Nav({ collapsed, onToggle }: NavProps) {
 
   const auth = authStore.get();
   const groupName = auth.tenantSlug || slug || "Team Generator";
-
-  console.log(auth.logoUrl);
   
-  const logoSrc = auth.logoUrl || "/BoraVer.svg";
+  const resolveLogoUrl = (logoPath?: string | null) => {
+    if (!logoPath) {
+      return "/BoraVer.svg";
+    }
+
+    if (logoPath.startsWith("http://") || logoPath.startsWith("https://")) {
+      return logoPath;
+    }
+
+    if (logoPath.startsWith("/api/")) {
+      return logoPath;
+    }
+
+    if (logoPath.startsWith("/uploads/")) {
+      return `/api${logoPath}`;
+    }
+
+    return logoPath;
+  };
+
+  const logoSrc = resolveLogoUrl(auth.logoUrl);
 
   const base = slug ? `/t/${slug}` : "";
 

@@ -83,7 +83,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   const [awaySetsWon, setAwaySetsWon] = useState(0);
 
   const [matchWinner, setMatchWinner] = useState<'home' | 'away' | null>(null);
-  const [setFinished, setSetFinished] = useState(false);
+  const [, setSetFinished] = useState(false);
   const [currentSetWinner, setCurrentSetWinner] = useState<'home' | 'away' | null>(null);
   const [confirmSetModalOpen, setConfirmSetModalOpen] = useState(false);
   const [resultModalVisible, setResultModalVisible] = useState(false);
