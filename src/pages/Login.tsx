@@ -2,13 +2,16 @@ import { Card, Form, Input, message } from "antd";
 import { loginBySlug } from "../api/auth";
 import { authStore } from "../auth/store";
 import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
 import AppButton from "../components/AppButton";
 
 export default function Login() {
   const [form] = Form.useForm();
   const nav = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   async function onFinish(values: any) {
+    setLoading(true);
     try {
       const res = await loginBySlug(values);
 
@@ -40,6 +43,8 @@ export default function Login() {
       } else {
         message.error(msg);
       }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -52,6 +57,7 @@ export default function Login() {
         alignItems: "center",
         backgroundColor: "#0d0d0d",
         padding: 16,
+        overflow: "hidden",
       }}
     >
       <div style={{ width: "100%", maxWidth: 440 }}>
@@ -60,7 +66,7 @@ export default function Login() {
           <img
             src="/images/logo_light.svg"
             alt="Bora Ver"
-            style={{ width: 400, height: "auto" }}
+            style={{ width: 180, height: "auto" }}
           />
         </div>
 
@@ -78,7 +84,7 @@ export default function Login() {
               name="tenantSlug"
               rules={[{ required: true, message: "Informe o grupo" }]}
             >
-              <Input />
+              <Input disabled={loading} />
             </Form.Item>
 
             <Form.Item
@@ -86,7 +92,7 @@ export default function Login() {
               name="email"
               rules={[{ required: true, type: "email" }]}
             >
-              <Input type="email" />
+              <Input type="email" disabled={loading} />
             </Form.Item>
 
             <Form.Item
@@ -94,11 +100,11 @@ export default function Login() {
               name="password"
               rules={[{ required: true }]}
             >
-              <Input.Password />
+              <Input.Password disabled={loading} />
             </Form.Item>
 
-            <AppButton tone="generate" htmlType="submit" block>
-              Entrar
+            <AppButton tone="generate" htmlType="submit" block loading={loading}>
+              {loading ? "Entrando..." : "Entrar"}
             </AppButton>
           </Form>
 

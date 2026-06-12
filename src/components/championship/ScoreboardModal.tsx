@@ -448,7 +448,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
         style={{
           cursor: 'grab',
           opacity: dragOver ? 0.7 : 1,
-          border: dragOver ? '2px dashed #2bd96b' : '2px solid transparent',
+          border: dragOver ? '2px dashed #01ff69' : '2px solid transparent',
           borderRadius: 12,
           transition: 'opacity 0.2s, border 0.2s',
         }}
@@ -499,7 +499,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
                 style={{
                   fontSize: 80,
                   fontWeight: 'bold',
-                  color: '#2bd96b',
+                  color: '#01ff69',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -554,18 +554,18 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           position: 'relative',
         },
       }}
-      closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+      closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
     >
       <div style={{ position: 'relative', minHeight: '100%' }}>
         <img
-          src="/BoraVer.svg"
+          src="/logo_minimal_light.svg"
           alt="BoraVer"
           style={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '220px',
+            width: '240px',
             height: 'auto',
             opacity: 0.1,
             pointerEvents: 'none',
@@ -644,7 +644,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               </Col>
 
               <Col xs={24} md={4} style={{ textAlign: 'center' }}>
-                <Text style={{ fontSize: 68 }}>VS</Text>
+                <Text style={{ fontSize: 68 }}></Text>
               </Col>
 
               <Col xs={24} md={10} style={{ textAlign: 'center' }}>
@@ -669,10 +669,10 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
             </Button>,
           ]}
           centered
-          closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+          closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
         >
           <div style={{ textAlign: 'center' }}>
-            <Title level={4} style={{ color: '#2bd96b' }}>
+            <Title level={4} style={{ color: '#01ff69' }}>
               {currentSetWinner === 'home' ? getHomeName() : getAwayName()} venceu
               o set {currentSet}!
             </Title>
@@ -696,10 +696,10 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           onCancel={cancelResultModal}
           footer={null}
           centered
-          closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+          closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
         >
           <div style={{ textAlign: 'center' }}>
-            <Title level={3} style={{ color: '#2bd96b' }}>
+            <Title level={3} style={{ color: '#01ff69' }}>
               Vencedor: {matchWinner === 'home' ? getHomeName() : getAwayName()}
             </Title>
 
@@ -740,7 +740,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               OK
             </Button>,
           ]}
-          closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+          closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
         >
           <div style={{ marginBottom: 16 }}>
             <label>Pontos por set: </label>
@@ -790,7 +790,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               Confirmar WO
             </Button>,
           ]}
-          closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+          closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
           centered
         >
           <div style={{ marginBottom: 16 }}>
@@ -833,12 +833,12 @@ const styles: Record<string, React.CSSProperties> = {
   },
   score: {
     fontSize: 280,
-    color: '#2bd96b',
+    color: '#01ff69',
     fontWeight: 'bold',
     lineHeight: 1,
   },
   incrementButton: {
-    backgroundColor: '#2bd96b',
+    backgroundColor: '#01ff69',
     borderColor: '#00aa09',
   },
   decrementButton: {

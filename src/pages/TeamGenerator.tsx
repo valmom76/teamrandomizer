@@ -285,7 +285,7 @@ export default function TeamGenerator() {
   };
 
   const headerStyle = {
-    color: "#2bd96b",
+    color: "#01ff69",
     fontSize: 28,
     fontWeight: "bold",
   };
@@ -329,7 +329,7 @@ export default function TeamGenerator() {
           onChange={onTabChange}
           items={tabsItems}
           size="large"
-          tabBarStyle={{ color: "#2bd96b", fontWeight: "bold" }}
+          tabBarStyle={{ color: "#01ff69", fontWeight: "bold" }}
         />
       </div>
 
@@ -343,7 +343,7 @@ export default function TeamGenerator() {
               <FileUpload key={key} onFileUpload={handleFileUpload} />
               {fileName && (
                 <div style={{ marginTop: 12 }}>
-                  <Text style={{ color: "#2bd96b", fontSize: 16 }}>
+                  <Text style={{ color: "#01ff69", fontSize: 16 }}>
                     📁 {fileName}
                   </Text>
                 </div>
@@ -390,7 +390,7 @@ export default function TeamGenerator() {
                           textAlign: "center",
                           backgroundColor: "#262626",
                           color: "#fff",
-                          border: "1px solid #2bd96b",
+                          border: "1px solid #01ff69",
                           borderRadius: 6,
                         }}
                       />
@@ -424,7 +424,7 @@ export default function TeamGenerator() {
                     <Badge
                       count={`Máx: ${maxPossibleTeamsTxt}`}
                       style={{
-                        backgroundColor: "#2bd96b",
+                        backgroundColor: "#01ff69",
                         color: "#1a1a1a",
                         fontWeight: "bold",
                         fontSize: 14,
@@ -524,7 +524,7 @@ export default function TeamGenerator() {
                     <Badge
                       count={`${teamsTxt.length} times`}
                       style={{
-                        backgroundColor: "#2bd96b",
+                        backgroundColor: "#01ff69",
                         color: "#1a1a1a",
                         fontWeight: "bold",
                         fontSize: 16,

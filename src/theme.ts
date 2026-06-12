@@ -2,7 +2,7 @@ import type { ThemeConfig } from "antd";
 
 export const theme: ThemeConfig = {
   token: {
-    colorPrimary: "#2bd96b",
+    colorPrimary: "#01ff69",
     colorInfo: "#2f9bff",
     colorWarning: "#ff9f1a",
     colorError: "#ff4d4f",
@@ -30,7 +30,7 @@ export const theme: ThemeConfig = {
     Menu: {
       itemBg: "transparent",
       itemSelectedBg: "rgba(43,217,107,0.12)",
-      itemSelectedColor: "#2bd96b",
+      itemSelectedColor: "#01ff69",
       itemColor: "rgba(255,255,255,0.78)",
     },
     Table: {

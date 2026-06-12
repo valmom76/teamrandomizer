@@ -128,7 +128,7 @@ export default function Dashboard() {
   };
 
   const planColors: Record<string, string> = {
-    Free: '#2bd96b',
+    Free: '#01ff69',
     Pro: '#1890ff',
     Elite: '#ff9f1a',
   };
@@ -142,7 +142,7 @@ export default function Dashboard() {
         <Avatar
           size={64}
           style={{
-            backgroundColor: auth.primaryColor || '#2bd96b',
+            backgroundColor: auth.primaryColor || '#01ff69',
             verticalAlign: 'middle',
             fontSize: 28,
             fontWeight: 'bold',
@@ -151,11 +151,11 @@ export default function Dashboard() {
           {auth.userName?.charAt(0)?.toUpperCase() || 'U'}
         </Avatar>
         <div>
-          <Title level={2} style={{ color: '#2bd96b', marginBottom: 4 }}>
+          <Title level={2} style={{ color: '#01ff69', marginBottom: 4 }}>
             Seja bem vindo(a), {auth.userName?.toUpperCase()}
           </Title>
           <Space>
-            <Tag color={planColors[planName] || '#2bd96b'} style={{ fontSize: 14, padding: '2px 12px' }}>
+            <Tag color={planColors[planName] || '#01ff69'} style={{ fontSize: 14, padding: '2px 12px' }}>
               <StarFilled style={{ marginRight: 4 }} />
               Plano {planName}
             </Tag>
@@ -219,7 +219,7 @@ export default function Dashboard() {
             icon={<TrophyOutlined style={{ fontSize: 28 }} />}
             title="CAMPEONATOS FINALIZADOS"
             value={stats.finishedChampionships}
-            color="#2bd96b"
+            color="#01ff69"
           />
         </Col>
         <Col xs={24} md={8}>
@@ -250,8 +250,8 @@ export default function Dashboard() {
             icon={<PlusOutlined />}
             onClick={() => navigate('/manual-teams')}
             style={{
-              backgroundColor: '#2bd96b',
-              borderColor: '#2bd96b',
+              backgroundColor: '#01ff69',
+              borderColor: '#01ff69',
               color: '#1a1a1a',
               fontWeight: 'bold',
               borderRadius: 6,
@@ -268,8 +268,8 @@ export default function Dashboard() {
           onClick={() => navigate('/generator')}
           style={{
             backgroundColor: '#1a1a1a',
-            borderColor: '#2bd96b',
-            color: '#2bd96b',
+            borderColor: '#01ff69',
+            color: '#01ff69',
             fontWeight: 'bold',
             borderRadius: 6,
             height: 48,
@@ -315,7 +315,7 @@ export default function Dashboard() {
       {/* Últimos campeonatos */}
       <Card
         title={
-          <span style={{ color: '#2bd96b', fontSize: 20, fontWeight: 'bold' }}>
+          <span style={{ color: '#01ff69', fontSize: 20, fontWeight: 'bold' }}>
             ÚLTIMOS CAMPEONATOS
           </span>
         }
@@ -380,7 +380,7 @@ export default function Dashboard() {
         width={600}
         style={{ top: 20 }}
         styles={{ body: { backgroundColor: '#1a1a1a' }}}
-        closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+        closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
       >
         <Table
           dataSource={inactiveList}

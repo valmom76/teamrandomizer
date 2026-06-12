@@ -283,7 +283,7 @@ export default function PlayerPerformancePage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <Title level={2} style={{ color: '#2bd96b', marginBottom: 24 }}>
+      <Title level={2} style={{ color: '#01ff69', marginBottom: 24 }}>
         🏐 Desempenho dos Atletas
       </Title>
 
@@ -293,7 +293,7 @@ export default function PlayerPerformancePage() {
             icon={<UserOutlined />}
             title="ATLETAS"
             value={kpis.total}
-            color="#2bd96b"
+            color="#01ff69"
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -359,7 +359,7 @@ export default function PlayerPerformancePage() {
 
       <Card
         title={
-          <span style={{ color: '#2bd96b', fontSize: 20 }}>Ranking Geral</span>
+          <span style={{ color: '#01ff69', fontSize: 20 }}>Ranking Geral</span>
         }
         style={{
           backgroundColor: '#1a1a1a',
@@ -380,7 +380,7 @@ export default function PlayerPerformancePage() {
       </Card>
 
       <Modal
-        title={<span style={{ color: '#2bd96b' }}>Evolução dos Ratings</span>}
+        title={<span style={{ color: '#01ff69' }}>Evolução dos Ratings</span>}
         open={evolutionModalOpen}
         onCancel={() => setEvolutionModalOpen(false)}
         footer={null}

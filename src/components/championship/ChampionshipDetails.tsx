@@ -137,7 +137,7 @@ const ChampionshipDetailsPage: React.FC = () => {
 
   return (
     <div>
-      <h1 style={{ fontSize: 48, color: '#2bd96b' }}>{championship.name}</h1>
+      <h1 style={{ fontSize: 48, color: '#01ff69' }}>{championship.name}</h1>
       <p style={{ fontSize: 24 }}>Status: {championship.status}</p>
       <Tabs activeKey={activeTab} items={tabItems} onChange={setActiveTab} />
     </div>

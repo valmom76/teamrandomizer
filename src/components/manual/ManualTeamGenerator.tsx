@@ -130,12 +130,12 @@ export const ManualTeamGenerator: React.FC = () => {
 
   return (
     <div style={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Title level={2} style={{ color: '#2bd96b', margin: '16px 0' }}>Criação de Campeonato</Title>
+      <Title level={2} style={{ color: '#01ff69', margin: '16px 0' }}>Criação de Campeonato</Title>
       <Row gutter={16} style={{ flex: 1, minHeight: 0 }}>
         {/* Coluna Configuração */}
         <Col span={8} style={{ height: '100%' }}>
           <Card
-            title={<span style={{ color: '#2bd96b' }}>Configuração</span>}
+            title={<span style={{ color: '#01ff69' }}>Configuração</span>}
             style={{ backgroundColor: '#1a1a1a', borderColor: '#333', height: '100%', display: 'flex', flexDirection: 'column' }}
             styles={{ body: { flex: 1, overflow: 'auto', padding: 16 }}}
           >
@@ -153,7 +153,7 @@ export const ManualTeamGenerator: React.FC = () => {
               <Input type="number" min={1} value={playersPerTeam} onChange={e => setPlayersPerTeam(Math.max(1, Number(e.target.value) || 1))} style={{ width: 120 }} />
             </div>
             <div style={{ color: '#aaa' }}>Total selecionado: {totalSelected} / {needed}</div>
-            <Button type="primary" onClick={handleOpenModal} disabled={!isComplete} style={{ marginTop: 16, backgroundColor: '#2bd96b', borderColor: '#2bd96b', color: '#000', fontWeight: 'bold' }}>
+            <Button type="primary" onClick={handleOpenModal} disabled={!isComplete} style={{ marginTop: 16, backgroundColor: '#01ff69', borderColor: '#01ff69', color: '#000', fontWeight: 'bold' }}>
               Criar Campeonato
             </Button>
           </Card>
@@ -162,7 +162,7 @@ export const ManualTeamGenerator: React.FC = () => {
         {/* Coluna Jogadores Disponíveis */}
         <Col span={8} style={{ height: '100%' }}>
           <Card
-            title={<span style={{ color: '#2bd96b' }}>Jogadores Disponíveis</span>}
+            title={<span style={{ color: '#01ff69' }}>Jogadores Disponíveis</span>}
             style={{ backgroundColor: '#1a1a1a', borderColor: '#333', height: '100%', display: 'flex', flexDirection: 'column' }}
             styles={{ body: { flex: 1, overflow: 'auto', padding: 12 }}}
           >
@@ -191,7 +191,7 @@ export const ManualTeamGenerator: React.FC = () => {
         {/* Coluna Times */}
         <Col span={8} style={{ height: '100%' }}>
           <Card
-            title={<span style={{ color: '#2bd96b' }}>Times</span>}
+            title={<span style={{ color: '#01ff69' }}>Times</span>}
             style={{ backgroundColor: '#1a1a1a', borderColor: '#333', height: '100%', display: 'flex', flexDirection: 'column' }}
             styles={{ body: { flex: 1, overflow: 'auto', padding: 12 }}}
           >
@@ -199,7 +199,7 @@ export const ManualTeamGenerator: React.FC = () => {
               <Card
                 key={idx}
                 type="inner"
-                title={<span style={{ color: '#2bd96b' }}>Time {idx}</span>}
+                title={<span style={{ color: '#01ff69' }}>Time {idx}</span>}
                 style={{ marginBottom: 16, backgroundColor: '#262626', borderColor: '#444' }}                
                 styles={{ body: { padding: 12 }}}
               >
@@ -233,13 +233,13 @@ export const ManualTeamGenerator: React.FC = () => {
       </Row>
 
       <Modal
-        title={<span style={{ color: '#2bd96b' }}>Configurar Campeonato</span>}
+        title={<span style={{ color: '#01ff69' }}>Configurar Campeonato</span>}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
         width={600}
         style={{ top: 20 }}
-        closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+        closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
       >
         <Form layout="vertical">
           <Form.Item label="Nome do Campeonato" required>
@@ -316,7 +316,7 @@ export const ManualTeamGenerator: React.FC = () => {
               onClick={handleSaveChampionship}
               loading={isSaving}
               block
-              style={{ backgroundColor: '#2bd96b', borderColor: '#2bd96b', color: '#000', fontWeight: 'bold' }}
+              style={{ backgroundColor: '#01ff69', borderColor: '#01ff69', color: '#000', fontWeight: 'bold' }}
             >
               Criar Campeonato
             </Button>

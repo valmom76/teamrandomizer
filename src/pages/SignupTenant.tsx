@@ -1,30 +1,18 @@
+import { useState } from "react";
 import { Button, Card, Form, Input, message } from "antd";
 import { registerTenant } from "../api/auth";
-import { authStore } from "../auth/store";
 import { useNavigate, Link } from "react-router-dom";
+import AppButton from "../components/AppButton";
 
 export default function SignupTenant() {
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const nav = useNavigate();
 
   async function onFinish(values: any) {
+    setLoading(true);
     try {
-      const res = await registerTenant(values);
-
-      authStore.set({
-        token: res.token || null,
-        tenantId: res.tenantId,
-        userId: res.userId,
-        role: res.role,
-        userName: res.userName,
-        tenantSlug: values.tenantSlug,
-        primaryColor: res.primaryColor,
-        secondaryColor: res.secondaryColor,
-        logoUrl: res.logoUrl,
-        planName: res.planName,
-        features: res.features,
-        emailVerified: res.emailVerified || false,
-      });
+      await registerTenant(values);
 
       message.success({
         content: "Conta criada com sucesso! Verifique seu e-mail para definir sua senha.",
@@ -40,6 +28,9 @@ export default function SignupTenant() {
       } else {
         message.error(msg);
       }
+    }
+    finally {
+      setLoading(false);
     }
   }
 
@@ -84,7 +75,7 @@ export default function SignupTenant() {
                 { min: 3, message: "Mínimo de 3 caracteres" },
               ]}
             >
-              <Input placeholder="Ex.: boraver" addonBefore="t/" />
+              <Input placeholder="Ex.: boraver" />
             </Form.Item>
 
             <Form.Item
@@ -103,12 +94,12 @@ export default function SignupTenant() {
                 { type: "email", message: "E-mail inválido" },
               ]}
             >
-              <Input placeholder="admin@exemplo.com" />
+              <Input placeholder="admin@exemplo.com" type="email" />
             </Form.Item>
 
-            <Button type="primary" htmlType="submit" block style={{ marginBottom: 16 }}>
-              Criar Conta
-            </Button>
+            <AppButton tone="generate" htmlType="submit" block loading={loading}>
+              {loading ? "Criando Conta..." : "Criar Conta"}
+            </AppButton>            
           </Form>
 
           <div style={{ textAlign: "center" }}>

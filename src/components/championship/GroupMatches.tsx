@@ -27,7 +27,7 @@ export const GroupMatches: React.FC<Props> = ({ matches, championshipId, groupNa
 
   const styles = {
     card: { marginBottom: 16, backgroundColor: '#1a1a1a', border: '1px solid #333' },
-    cardTitle: { fontSize: 28, color: '#2bd96b' },
+    cardTitle: { fontSize: 28, color: '#01ff69' },
     matchRow: {
       display: 'flex',
       alignItems: 'center',
@@ -39,7 +39,7 @@ export const GroupMatches: React.FC<Props> = ({ matches, championshipId, groupNa
     matchRound: { width: 120, fontSize: '20px', color: '#aaa' },
     matchTeams: { flex: 1, display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center' },
     team: { fontSize: '28px', color: '#fff' },
-    winner: { fontSize: '28px', color: '#2bd96b', fontWeight: 'bold' },
+    winner: { fontSize: '28px', color: '#01ff69', fontWeight: 'bold' },
     matchScore: { fontSize: '32px', fontWeight: 'bold', color: '#fff' },
     playButton: { fontSize: '20px', height: 'auto', padding: '8px 24px', color: '#000' },
   };
@@ -48,8 +48,8 @@ export const GroupMatches: React.FC<Props> = ({ matches, championshipId, groupNa
     font-size: 24px !important;
     padding: 12px 30px !important;
     height: auto !important;
-    background-color: #2bd96b !important;
-    border-color: #2bd96b !important;
+    background-color: #01ff69 !important;
+    border-color: #01ff69 !important;
     color: #1a1a1a !important;
     font-weight: bold;
     &:hover {

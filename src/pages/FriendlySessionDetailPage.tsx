@@ -41,13 +41,13 @@ export default function FriendlySessionDetailPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <Typography.Title level={2} style={{ color: '#2bd96b' }}>
+      <Typography.Title level={2} style={{ color: '#01ff69' }}>
         Vôlei de Terça - {details.dateFormatted}
       </Typography.Title>
       {details.courts.map((court: any) => (
         <Card
           key={court.name}
-          title={<span style={{ color: '#2bd96b', fontSize: 24 }}>{court.name}</span>}
+          title={<span style={{ color: '#01ff69', fontSize: 24 }}>{court.name}</span>}
           style={{ backgroundColor: '#1a1a1a', borderColor: '#333', marginBottom: 24 }}
         >
           <Row gutter={[16, 16]}>

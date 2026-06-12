@@ -13,7 +13,7 @@ export default function FriendlySessionsPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <Typography.Title level={2} style={{ color: '#2bd96b' }}>Friendly Games</Typography.Title>
+      <Typography.Title level={2} style={{ color: '#01ff69' }}>Friendly Games</Typography.Title>
       <List
         grid={{ gutter: 16, column: 3 }}
         dataSource={sessions}

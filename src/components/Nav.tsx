@@ -37,7 +37,7 @@ export default function Nav({ collapsed, onToggle }: NavProps) {
   
   const resolveLogoUrl = (logoPath?: string | null) => {
     if (!logoPath) {
-      return "/BoraVer.svg";
+      return "/logo_minimal.svg";
     }
 
     if (logoPath.startsWith("http://") || logoPath.startsWith("https://")) {

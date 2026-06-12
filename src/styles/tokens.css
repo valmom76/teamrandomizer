@@ -15,7 +15,7 @@
   --border-2: rgba(255,255,255,.10);
 
   /* Cores de ação (seguindo sua CSS) */
-  --primary: #2bd96b;  /* generate / destaque */
+  --primary: #01ff69;  /* generate / destaque */
   --info: #2f9bff;     /* save */
   --warn: #ff9f1a;     /* copy */
   --danger: #ff4d4f;   /* reset */

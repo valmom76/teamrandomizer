@@ -81,7 +81,7 @@ export default function PlayerRatingsModal({
       centered
       footer={null}
       destroyOnClose
-      closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+      closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
     >
       <Space direction="vertical" style={{ width: "100%" }} size={12}>
         <Card

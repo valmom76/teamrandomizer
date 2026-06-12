@@ -352,7 +352,7 @@ export default function Players() {
         onOk={handleUpdate}
         okText="Salvar"
         cancelText="Cancelar"
-        closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+        closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
       >
         <Form form={editForm} layout="vertical">
           <Form.Item name="name" label="Nome" rules={[{ required: true }]}>

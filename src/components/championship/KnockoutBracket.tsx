@@ -18,12 +18,12 @@ const StyledCard = styled(Card)`
   margin-bottom: 24px;
   .ant-card-head {
     background-color: #0d0d0d;
-    border-bottom: 1px solid #2bd96b;
+    border-bottom: 1px solid #01ff69;
   }
   .ant-card-head-title {
     font-size: 36px;
     font-weight: bold;
-    color: #2bd96b;
+    color: #01ff69;
   }
 `;
 
@@ -35,7 +35,7 @@ const MatchContainer = styled.div`
   padding: 20px 24px;
   margin-bottom: 16px;
   border-radius: 8px;
-  border-left: 6px solid #2bd96b;
+  border-left: 6px solid #01ff69;
 `;
 
 const TeamsDisplay = styled.div`
@@ -43,7 +43,7 @@ const TeamsDisplay = styled.div`
   font-weight: 600;
   color: #ffffff;
   span {
-    color: #2bd96b;
+    color: #01ff69;
     margin: 0 12px;
   }
 `;
@@ -52,7 +52,7 @@ const ScoreDisplay = styled(Tag)`
   font-size: 28px !important;
   padding: 12px 24px !important;
   border-radius: 8px;
-  background-color: #2bd96b !important;
+  background-color: #01ff69 !important;
   color: #1a1a1a !important;
   border: none;
   font-weight: bold;
@@ -62,8 +62,8 @@ const PlayButton = styled(Button)`
   font-size: 24px !important;
   padding: 12px 30px !important;
   height: auto !important;
-  background-color: #2bd96b !important;
-  border-color: #2bd96b !important;
+  background-color: #01ff69 !important;
+  border-color: #01ff69 !important;
   color: #1a1a1a !important;
   font-weight: bold;
   &:hover {

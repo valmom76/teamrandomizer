@@ -244,7 +244,7 @@ export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
   return (
     <>
       <Modal
-        title={<span style={{ color: '#2bd96b' }}>Configurar Quadras</span>}
+        title={<span style={{ color: '#01ff69' }}>Configurar Quadras</span>}
         open={open}
         onCancel={onCancel}
         footer={[
@@ -269,7 +269,7 @@ export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
         ]}
         width={720}
         style={{ top: 20 }}
-        closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+        closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
       >
         <Form layout="vertical">
           <Form.Item label="Número de quadras">

@@ -46,7 +46,7 @@ export const ChampionshipList: React.FC = () => {
           type="primary" 
           ghost 
           onClick={() => navigate(`/championships/${record.id}`)}
-          style={{ color: '#2bd96b', borderColor: '#2bd96b' }}
+          style={{ color: '#01ff69', borderColor: '#01ff69' }}
         >
           Detalhes
         </Button>
@@ -56,7 +56,7 @@ export const ChampionshipList: React.FC = () => {
 
   return (
     <Card 
-      title={<span style={{ color: '#2bd96b', fontSize: 24, fontWeight: 'bold' }}>Campeonatos</span>}
+      title={<span style={{ color: '#01ff69', fontSize: 24, fontWeight: 'bold' }}>Campeonatos</span>}
       style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: 8 }}
       styles={{ header: { borderBottom: '1px solid #333' } }}
     >

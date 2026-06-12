@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Layout } from "antd";
 import Nav from "./components/Nav";
 import RequireAuth from "./auth/RequireAuth";
-import { authStore } from './auth/store';
+import { authStore } from "./auth/store";
 
 import Login from "./pages/Login";
 import SignupTenant from "./pages/SignupTenant";
@@ -34,25 +34,34 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem("nav:collapsed") === "1"
   );
-
-  const token = authStore.getToken();
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => !!authStore.getToken()
+  );
 
   useEffect(() => {
     localStorage.setItem("nav:collapsed", collapsed ? "1" : "0");
   }, [collapsed]);
+
+  // Atualiza o estado de autenticação sempre que a rota mudar (login/logout)
+  useEffect(() => {
+    setIsAuthenticated(!!authStore.getToken());
+  }, [location.pathname]);
 
   const toggleCollapsed = () => setCollapsed((c) => !c);
 
   return (
     <QueryClientProvider client={queryClient}>
       <Layout style={{ minHeight: "100vh" }}>
-        {token && <Nav collapsed={collapsed} onToggle={toggleCollapsed} />}
+        {isAuthenticated && (
+          <Nav collapsed={collapsed} onToggle={toggleCollapsed} />
+        )}
         <Layout
           style={{
-            marginLeft: collapsed ? 72 : 220,
+            marginLeft: isAuthenticated ? (collapsed ? 72 : 220) : 0,
             transition: "margin-left 0.2s",
             minHeight: "100vh",
           }}
@@ -98,7 +107,7 @@ export default function App() {
                     <PositionsPage />
                   </RequireAuth>
                 }
-              />              
+              />
               <Route
                 path="/players"
                 element={

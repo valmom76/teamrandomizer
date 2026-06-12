@@ -307,7 +307,7 @@ export const PotSelection: React.FC = () => {
             type="primary"
             onClick={handleGenerate}
             disabled={!areAllPotesComplete}
-            style={{ backgroundColor: '#2bd96b', borderColor: '#2bd96b' }}
+            style={{ backgroundColor: '#01ff69', borderColor: '#01ff69' }}
           >
             Embaralhar Times
           </Button>

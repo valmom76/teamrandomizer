@@ -887,7 +887,7 @@ export default function DbTeamGenerator() {
       <Modal
         title={
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: "#2bd96b", fontSize: 28 }}>Ajustar Times</span>
+            <span style={{ color: "#01ff69", fontSize: 28 }}>Ajustar Times</span>
             <div style={{ display: "flex", gap: 8 }}>
               <Button type="primary" onClick={() => setAdjustModalOpen(false)}>
                 Concluído

@@ -19,7 +19,7 @@ const StyledTable = styled.table`
 
   thead tr th {
     background-color: #0d0d0d;
-    color: #2bd96b;
+    color: #01ff69;
     font-size: 30px;
     padding: 20px 16px;
     font-weight: bold;
@@ -42,11 +42,11 @@ const StyledTable = styled.table`
 const HighlightedRow = styled.tr`
   background-color: rgba(43, 217, 107, 0.2);
   font-weight: bold;
-  border-left: 4px solid #2bd96b;
+  border-left: 4px solid #01ff69;
   
   td {
     font-weight: bold;
-    color: #2bd96b !important;
+    color: #01ff69 !important;
   }
 `;
 
@@ -69,7 +69,7 @@ export const GroupStandings: React.FC<Props> = ({ standings, groupName, qualifie
     <Card
       title={groupName}
       style={{ marginBottom: 16, backgroundColor: '#1a1a1a', border: '1px solid #333' }}
-      styles={{ header: { fontSize: 28, color: '#2bd96b' } }}
+      styles={{ header: { fontSize: 28, color: '#01ff69' } }}
     >
       <StyledTable>
         <thead>

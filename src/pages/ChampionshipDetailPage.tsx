@@ -244,7 +244,7 @@ const ChampionshipDetailsPage: React.FC = () => {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{ fontSize: 48, color: '#2bd96b', margin: 0 }}>{championship.name}</h1>
+        <h1 style={{ fontSize: 48, color: '#01ff69', margin: 0 }}>{championship.name}</h1>
         {!isKnockoutFormat && (
           <Button
             icon={<FullscreenOutlined />}
@@ -279,7 +279,7 @@ const ChampionshipDetailsPage: React.FC = () => {
               position: 'relative',
             },
           }}
-          closeIcon={<CloseOutlined style={{ color: '#2bd96b' }} />}
+          closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
         >
           {renderGroupsGrid()}
         </Modal>
