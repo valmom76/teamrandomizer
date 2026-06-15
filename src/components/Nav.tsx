@@ -5,7 +5,6 @@ import {
   UserOutlined,
   StarOutlined,
   LogoutOutlined,
-  LoginOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   TeamOutlined,
@@ -33,11 +32,11 @@ export default function Nav({ collapsed, onToggle }: NavProps) {
 
   const auth = authStore.get();
   const features = auth.features || [];
-  const groupName = auth.tenantSlug || slug || "Team Generator";
+  const groupName = auth.groupName || slug || "Team Generator";
   
   const resolveLogoUrl = (logoPath?: string | null) => {
     if (!logoPath) {
-      return "/logo_minimal.svg";
+      return "/logo_minimal_light.svg";
     }
 
     if (logoPath.startsWith("http://") || logoPath.startsWith("https://")) {

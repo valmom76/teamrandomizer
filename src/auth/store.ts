@@ -11,6 +11,7 @@ export type AuthState = {
   planName?: string | null;
   features?: string[] | null;
   emailVerified?: boolean;
+  groupName?: string | null;
 };
 
 export const authStore = {
@@ -30,7 +31,8 @@ export const authStore = {
           userName: null,
           primaryColor: null,    
           secondaryColor: null,  
-          logoUrl: null,         
+          logoUrl: null,    
+          groupName: null,     
         };
   },
   getToken() {

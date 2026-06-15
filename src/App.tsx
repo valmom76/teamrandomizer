@@ -21,6 +21,7 @@ import FriendlySessionsPage from "./pages/FriendlySessionsPage";
 import FriendlySessionDetailPage from "./pages/FriendlySessionDetailPage";
 import PlayerPerformancePage from "./pages/PlayerPerformancePage";
 import PositionsPage from "./pages/PositionsPage";
+import Upgrade from './pages/Upgrade';
 
 const { Content } = Layout;
 
@@ -74,7 +75,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignupTenant />} />
               <Route path="/verify" element={<VerifyEmailPage />} />
-
+              <Route path="/upgrade" element={<Upgrade />} />
               {/* Rotas protegidas */}
               <Route
                 path="/dashboard"

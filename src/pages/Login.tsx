@@ -28,6 +28,7 @@ export default function Login() {
         planName: res.planName,
         features: res.features,
         emailVerified: res.emailVerified,
+        groupName: res.groupName,
       });
 
       message.success("Bem-vindo!");

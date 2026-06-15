@@ -12,6 +12,7 @@ export type AuthResponse = {
   planName?: string;
   features?: string[];
   emailVerified?: boolean;
+  groupName?: string;
 };
 
 export async function registerTenant(payload: {

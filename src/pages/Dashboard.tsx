@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Card, Row, Col, Typography, Statistic, Button, Spin, Tag, Modal, Table, Space, Avatar
+  Card, Row, Col, Typography, Statistic, Button, Spin, Tag, Modal, Table, Space, Avatar, Tooltip
 } from 'antd';
 import {
   TrophyOutlined,
@@ -12,6 +12,10 @@ import {
   CloseOutlined,
   CrownOutlined,
   StarFilled,
+  CheckCircleOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { http } from '../api/http';
@@ -30,7 +34,8 @@ const StatCard: React.FC<{
   value: number;
   color: string;
   onClick?: () => void;
-}> = ({ icon, title, value, color, onClick }) => (
+  tooltip?: string;
+}> = ({ icon, title, value, color, onClick, tooltip }) => (
   <Card
     style={{
       borderLeft: `4px solid ${color}`,
@@ -42,7 +47,16 @@ const StatCard: React.FC<{
     onClick={onClick}
   >
     <Statistic
-      title={<span style={{ color: '#aaa', fontSize: 16 }}>{title}</span>}
+      title={
+        <span style={{ color: '#aaa', fontSize: 16 }}>
+          {title}
+          {tooltip && (
+            <Tooltip title={tooltip}>
+              <InfoCircleOutlined style={{ marginLeft: 8, color: '#888' }} />
+            </Tooltip>
+          )}
+        </span>
+      }
       value={value}
       styles={{ content: { color, fontSize: 36, fontWeight: 'bold' } }}
       prefix={icon}
@@ -67,6 +81,8 @@ export default function Dashboard() {
   const planName = auth.planName || 'Free';
   const features = auth.features || [];
   const isFreePlan = planName === 'Free';
+  const isProPlan = planName === 'Pro';
+  const isElitePlan = planName === 'Elite';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,8 +146,27 @@ export default function Dashboard() {
   const planColors: Record<string, string> = {
     Free: '#01ff69',
     Pro: '#1890ff',
+    Premium: '#722ed1',
     Elite: '#ff9f1a',
   };
+
+  const planBgColors: Record<string, string> = {
+    Free: 'rgba(1, 255, 105, 0.1)',
+    Pro: 'rgba(24, 144, 255, 0.1)',
+    Premium: 'rgba(114, 46, 209, 0.1)',
+    Elite: 'rgba(255, 159, 26, 0.1)',
+  };
+
+  const getPlanLimits = () => {
+    const limits: Record<string, { players: string; championships: string }> = {
+      Free: { players: '20 jogadores', championships: 'Sem campeonatos' },
+      Pro: { players: 'Ilimitados', championships: 'Até 2 campeonatos' },
+      Elite: { players: 'Ilimitados', championships: 'Ilimitados' },
+    };
+    return limits[planName] || limits.Free;
+  };
+
+  const planLimits = getPlanLimits();
 
   if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 50 }} />;
 
@@ -155,7 +190,10 @@ export default function Dashboard() {
             Seja bem vindo(a), {auth.userName?.toUpperCase()}
           </Title>
           <Space>
-            <Tag color={planColors[planName] || '#01ff69'} style={{ fontSize: 14, padding: '2px 12px' }}>
+            <Tag
+              color={planColors[planName] || '#01ff69'}
+              style={{ fontSize: 14, padding: '2px 12px' }}
+            >
               <StarFilled style={{ marginRight: 4 }} />
               Plano {planName}
             </Tag>
@@ -168,32 +206,52 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Card de upgrade (apenas para plano Free) */}
-      {isFreePlan && (
-        <Card
-          style={{
-            backgroundColor: '#1a1a1a',
-            borderColor: '#ff9f1a',
-            borderLeft: '4px solid #ff9f1a',
-            borderRadius: 8,
-            marginBottom: 24,
-          }}
-        >
-          <Row align="middle" justify="space-between">
-            <Col>
-              <Text style={{ color: '#ff9f1a', fontWeight: 'bold', fontSize: 16 }}>
+      {/* Card do plano atual */}
+      <Card
+        style={{
+          backgroundColor: '#1a1a1a',
+          borderColor: planColors[planName] || '#ff9f1a',
+          borderLeft: `4px solid ${planColors[planName] || '#ff9f1a'}`,
+          borderRadius: 8,
+          marginBottom: 24,
+        }}
+      >
+        <Row align="middle" justify="space-between">
+          <Col flex="auto">
+            <Space direction="vertical" size={8}>
+              <Text style={{ color: planColors[planName] || '#ff9f1a', fontWeight: 'bold', fontSize: 16 }}>
                 <CrownOutlined style={{ marginRight: 8 }} />
-                Plano {planName} — Recursos Limitados
+                Plano {planName}
+                {isFreePlan ? ' — Recursos Limitados' : ' — '}
+                {isProPlan && 'Grupos Competitivos'}
+                {isElitePlan && 'Acesso Completo'}
               </Text>
-              <br />
-              <Text style={{ color: '#aaa', fontSize: 14 }}>
-                Faça upgrade para acessar campeonatos, relatórios avançados e mais.
-              </Text>
-            </Col>
-            <Col>
+              
+              <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+                <Text style={{ color: '#aaa', fontSize: 13 }}>
+                  🏐 {planLimits.players}
+                </Text>
+                <Text style={{ color: '#aaa', fontSize: 13 }}>
+                  🏆 {planLimits.championships}
+                </Text>
+                <Text style={{ color: '#aaa', fontSize: 13 }}>
+                  ✅ {features.length} funcionalidades ativas
+                </Text>
+              </div>
+
+              {isFreePlan && (
+                <Text style={{ color: '#888', fontSize: 12 }}>
+                  Você está no plano gratuito. Aproveite e faça upgrade para liberar todos os recursos!
+                </Text>
+              )}
+            </Space>
+          </Col>
+          
+          <Col>
+            {isFreePlan ? (
               <Button
                 type="primary"
-                icon={<CrownOutlined />}
+                icon={<ArrowUpOutlined />}
                 style={{
                   backgroundColor: '#ff9f1a',
                   borderColor: '#ff9f1a',
@@ -207,10 +265,46 @@ export default function Dashboard() {
               >
                 Fazer Upgrade
               </Button>
-            </Col>
-          </Row>
-        </Card>
-      )}
+            ) : (
+              <Space>
+                <Button
+                  type="default"
+                  icon={<ArrowDownOutlined />}
+                  style={{
+                    borderColor: '#f5222d',
+                    color: '#f5222d',
+                    fontWeight: 'bold',
+                    borderRadius: 6,
+                    height: 44,
+                    fontSize: 14,
+                  }}
+                  onClick={() => navigate('/upgrade')}
+                >
+                  Gerenciar Plano
+                </Button>
+                {!isElitePlan && (
+                  <Button
+                    type="primary"
+                    icon={<ArrowUpOutlined />}
+                    style={{
+                      backgroundColor: '#ff9f1a',
+                      borderColor: '#ff9f1a',
+                      color: '#000',
+                      fontWeight: 'bold',
+                      borderRadius: 6,
+                      height: 44,
+                      fontSize: 14,
+                    }}
+                    onClick={() => navigate('/upgrade')}
+                  >
+                    Upgrade para Elite
+                  </Button>
+                )}
+              </Space>
+            )}
+          </Col>
+        </Row>
+      </Card>
 
       {/* Cards principais */}
       <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
@@ -228,6 +322,7 @@ export default function Dashboard() {
             title="ATLETAS ATIVOS"
             value={stats.activePlayers}
             color="#faad14"
+            tooltip={planLimits.players}
           />
         </Col>
         <Col xs={24} md={8}>
@@ -379,7 +474,7 @@ export default function Dashboard() {
         footer={null}
         width={600}
         style={{ top: 20 }}
-        styles={{ body: { backgroundColor: '#1a1a1a' }}}
+        styles={{ body: { backgroundColor: '#1a1a1a' } }}
         closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
       >
         <Table
