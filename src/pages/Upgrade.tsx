@@ -39,7 +39,7 @@ export default function Upgrade() {
   const [cpfModalOpen, setCpfModalOpen] = useState(false);
 
   const currentPlanName = auth.planName || 'Free';
-  
+
   // Encontra o plano atual para comparação de preço
   const currentPlan = plans.find(p => p.name === currentPlanName);
   const currentPlanPrice = currentPlan?.price || 0;
@@ -60,7 +60,6 @@ export default function Upgrade() {
     fetchPlans();
   }, []);
 
-  // ─── Função que efetivamente cria a assinatura ───
   const proceedWithSubscription = async () => {
     setSubscribing(true);
     try {
@@ -71,7 +70,6 @@ export default function Upgrade() {
         invoiceUrl?: string;
       };
 
-      // Abre o link de pagamento do Asaas (permite escolher boleto/PIX/cartão)
       if (invoiceUrl) {
         window.open(invoiceUrl, '_blank');
         message.success('Página de pagamento aberta! Escolha a forma de pagamento.');
@@ -102,7 +100,6 @@ export default function Upgrade() {
     }
   };
 
-  // ─── Handler principal do botão "Confirmar Upgrade" ───
   const handleSubscribe = async () => {
     if (!selectedPlan) {
       message.warning('Selecione um plano');
@@ -112,13 +109,12 @@ export default function Upgrade() {
     const plan = plans.find(p => p.id === selectedPlan);
     if (!plan) return;
 
-    // Verifica se está tentando assinar o plano atual
     if (plan.name === currentPlanName) {
       message.info('Você já está neste plano!');
       return;
     }
 
-    // Verifica se é downgrade (não permitido)
+    // Downgrade não permitido manualmente
     if (plan.price <= currentPlanPrice && currentPlanPrice > 0) {
       message.warning(
         'Downgrade não é permitido manualmente. ' +
@@ -128,7 +124,7 @@ export default function Upgrade() {
       return;
     }
 
-    // Se for plano pago, verifica se o CPF/CNPJ já foi informado
+    // Verifica CPF/CNPJ para planos pagos
     if (plan.price > 0) {
       try {
         const { data: profile } = await http.get('/user/profile');
@@ -142,7 +138,6 @@ export default function Upgrade() {
       }
     }
 
-    // Prossegue com a assinatura
     proceedWithSubscription();
   };
 
@@ -157,12 +152,12 @@ export default function Upgrade() {
     }
   };
 
+  // Colunas dinâmicas
   const getColSpan = (total: number) => {
     if (total === 1) return 24;
     if (total === 2) return 12;
-    return 8;
+    return 8; // 3 colunas
   };
-
   const colSpan = getColSpan(plans.length);
 
   const getPlanColors = (planName: string) => {
@@ -176,14 +171,14 @@ export default function Upgrade() {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 1200, margin: '0 auto' }}>
       {/* Cabeçalho */}
       <div style={{ textAlign: 'center', marginBottom: 16 }}>
-        <Title level={2} style={{ color: '#ff9f1a', marginBottom: 8 }}>
+        <Title level={2} style={{ color: '#ff9f1a', marginBottom: 8, fontSize: 'clamp(20px, 5vw, 28px)' }}>
           <CrownOutlined style={{ marginRight: 12 }} />
           Planos de Assinatura
         </Title>
-        <Text style={{ color: '#aaa', fontSize: 16 }}>
+        <Text style={{ color: '#aaa', fontSize: 'clamp(14px, 2vw, 16px)' }}>
           Escolha o plano ideal para o seu grupo e libere recursos avançados
         </Text>
       </div>
@@ -193,13 +188,13 @@ export default function Upgrade() {
         style={{
           textAlign: 'center',
           marginBottom: 24,
-          padding: '12px 24px',
+          padding: 'clamp(8px, 2vw, 12px) clamp(16px, 3vw, 24px)',
           backgroundColor: 'rgba(255, 159, 26, 0.1)',
           border: '1px solid #ff9f1a',
           borderRadius: 8,
         }}
       >
-        <Text style={{ color: '#ff9f1a', fontSize: 14 }}>
+        <Text style={{ color: '#ff9f1a', fontSize: 'clamp(12px, 1.8vw, 14px)' }}>
           <StarFilled style={{ marginRight: 6 }} />
           Upgrade é aplicado imediatamente. O downgrade ocorre automaticamente ao final do ciclo caso não haja renovação.
         </Text>
@@ -211,7 +206,7 @@ export default function Upgrade() {
         </Card>
       ) : (
         <>
-          <Row gutter={[24, 24]} justify="center">
+          <Row gutter={[16, 16]} justify="center">
             {plans.map((plan) => {
               const featureList = parseFeatures(plan.features);
               const isSelected = selectedPlan === plan.id;
@@ -219,7 +214,6 @@ export default function Upgrade() {
               const isFree = plan.price === 0;
               const isUpgrade = plan.price > currentPlanPrice;
               const isDowngrade = plan.price < currentPlanPrice;
-              const isSamePlan = plan.price === currentPlanPrice && !isCurrentPlan;
               const colors = getPlanColors(plan.name);
 
               return (
@@ -240,9 +234,7 @@ export default function Upgrade() {
                       display: 'flex',
                       flexDirection: 'column',
                       opacity: isDowngrade ? 0.6 : isCurrentPlan ? 1 : 0.85,
-                      boxShadow: isCurrentPlan
-                        ? `0 0 20px ${colors.border}40`
-                        : 'none',
+                      boxShadow: isCurrentPlan ? `0 0 20px ${colors.border}40` : 'none',
                       position: 'relative',
                     }}
                     onClick={() => {
@@ -250,7 +242,7 @@ export default function Upgrade() {
                         setSelectedPlan(plan.id);
                       }
                     }}
-                    styles={{ body: { flex: 1, display: 'flex', flexDirection: 'column' } }}
+                    styles={{ body: { flex: 1, display: 'flex', flexDirection: 'column', padding: 'clamp(16px, 3vw, 24px)' } }}
                   >
                     {/* Cabeçalho */}
                     <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -259,7 +251,7 @@ export default function Upgrade() {
                         style={{
                           color: colors.text,
                           marginBottom: 4,
-                          fontSize: isCurrentPlan ? 28 : 24,
+                          fontSize: isCurrentPlan ? 'clamp(22px, 4vw, 28px)' : 'clamp(18px, 3vw, 24px)',
                         }}
                       >
                         {plan.name}
@@ -273,14 +265,14 @@ export default function Upgrade() {
                     </div>
 
                     {/* Preço */}
-                    <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                    <div style={{ textAlign: 'center', marginBottom: 20 }}>
                       {isFree ? (
-                        <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#01ff69' }}>
+                        <Text style={{ fontSize: 'clamp(28px, 5vw, 36px)', fontWeight: 'bold', color: '#01ff69' }}>
                           Grátis
                         </Text>
                       ) : (
                         <>
-                          <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#fff' }}>
+                          <Text style={{ fontSize: 'clamp(28px, 5vw, 36px)', fontWeight: 'bold', color: '#fff' }}>
                             R$ {plan.price.toFixed(2).replace('.', ',')}
                           </Text>
                           <Text style={{ color: '#aaa', fontSize: 14 }}>/mês</Text>
@@ -289,15 +281,15 @@ export default function Upgrade() {
                     </div>
 
                     {/* Features */}
-                    <div style={{ flex: 1, marginBottom: 20 }}>
+                    <div style={{ flex: 1, marginBottom: 16 }}>
                       {featureList.map((feature, idx) => (
                         <div
                           key={idx}
                           style={{
-                            marginBottom: 8,
+                            marginBottom: 6,
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 8,
+                            gap: 6,
                             padding: '4px 0',
                           }}
                         >
@@ -333,78 +325,72 @@ export default function Upgrade() {
                       </Text>
                     </div>
 
-                    {/* Indicador de ação */}
-                    {isCurrentPlan ? (
-                      <Tag
-                        color={colors.text}
-                        style={{
-                          width: '100%',
-                          textAlign: 'center',
-                          padding: '8px 0',
-                          fontSize: 14,
-                          marginTop: 12,
-                          fontWeight: 'bold',
-                          backgroundColor: colors.bg,
-                          border: `1px solid ${colors.border}`,
-                        }}
-                      >
-                        <CheckOutlined style={{ marginRight: 6 }} />
-                        Este é o seu plano
-                      </Tag>
-                    ) : isDowngrade ? (
-                      <Tooltip title="Downgrade não disponível manualmente. O plano será alterado automaticamente ao final do ciclo caso não haja renovação.">
+                    {/* Ação */}
+                    <div style={{ marginTop: 12 }}>
+                      {isCurrentPlan ? (
+                        <Tag
+                          color={colors.text}
+                          style={{
+                            width: '100%',
+                            textAlign: 'center',
+                            padding: '6px 0',
+                            fontSize: 14,
+                            fontWeight: 'bold',
+                            backgroundColor: colors.bg,
+                            border: `1px solid ${colors.border}`,
+                          }}
+                        >
+                          <CheckOutlined /> Este é o seu plano
+                        </Tag>
+                      ) : isDowngrade ? (
+                        <Tooltip title="Downgrade não disponível manualmente.">
+                          <Button
+                            type="default"
+                            block
+                            disabled
+                            icon={<LockOutlined />}
+                            style={{
+                              fontWeight: 'bold',
+                              height: 40,
+                              opacity: 0.5,
+                            }}
+                          >
+                            Indisponível
+                          </Button>
+                        </Tooltip>
+                      ) : isSelected ? (
+                        <Tag
+                          color="#ff9f1a"
+                          style={{
+                            width: '100%',
+                            textAlign: 'center',
+                            padding: '6px 0',
+                            fontSize: 14,
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          <ArrowUpOutlined /> Selecionado
+                        </Tag>
+                      ) : (
                         <Button
                           type="default"
                           block
-                          disabled
-                          icon={<LockOutlined />}
+                          icon={isUpgrade ? <ArrowUpOutlined /> : undefined}
                           style={{
-                            marginTop: 12,
+                            borderColor: colors.border,
+                            color: colors.text,
                             fontWeight: 'bold',
-                            borderRadius: 6,
                             height: 40,
-                            opacity: 0.5,
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedPlan(plan.id);
                           }}
                         >
-                          Indisponível
+                          {isFree ? 'Usar Free' : 'Escolher Plano'}
                         </Button>
-                      </Tooltip>
-                    ) : isSelected ? (
-                      <Tag
-                        color="#ff9f1a"
-                        style={{
-                          width: '100%',
-                          textAlign: 'center',
-                          padding: '6px 0',
-                          fontSize: 14,
-                          marginTop: 12,
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        <ArrowUpOutlined style={{ marginRight: 6 }} />
-                        Selecionado para upgrade
-                      </Tag>
-                    ) : (
-                      <Button
-                        type="default"
-                        block
-                        icon={isUpgrade ? <ArrowUpOutlined /> : undefined}
-                        style={{
-                          marginTop: 12,
-                          borderColor: colors.border,
-                          color: colors.text,
-                          fontWeight: 'bold',
-                          borderRadius: 6,
-                          height: 40,
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedPlan(plan.id);
-                        }}
-                      >
-                        {isFree ? 'Usar Free' : 'Escolher Plano'}
-                      </Button>
-                    )}
+                      )}
+                    </div>
                   </Card>
                 </Col>
               );
@@ -413,7 +399,7 @@ export default function Upgrade() {
 
           {/* Botão de confirmação */}
           {selectedPlan && (
-            <div style={{ textAlign: 'center', marginTop: 40 }}>
+            <div style={{ textAlign: 'center', marginTop: 32 }}>
               <Button
                 type="primary"
                 size="large"
@@ -425,16 +411,17 @@ export default function Upgrade() {
                   borderColor: '#ff9f1a',
                   color: '#000',
                   fontWeight: 'bold',
+                  height: 48,
+                  fontSize: 'clamp(16px, 2.5vw, 18px)',
+                  padding: '0 32px',
+                  maxWidth: 400,
+                  width: '100%',
                   borderRadius: 8,
-                  height: 56,
-                  fontSize: 18,
-                  padding: '0 48px',
-                  transition: 'all 0.3s',
                 }}
               >
                 {subscribing ? 'Processando...' : 'Confirmar Upgrade'}
               </Button>
-              <Text style={{ display: 'block', color: '#888', marginTop: 12, fontSize: 13 }}>
+              <Text style={{ display: 'block', color: '#888', marginTop: 8, fontSize: 13 }}>
                 O upgrade é aplicado imediatamente após a confirmação do pagamento
               </Text>
             </div>
@@ -450,4 +437,4 @@ export default function Upgrade() {
       />
     </div>
   );
-}
+};

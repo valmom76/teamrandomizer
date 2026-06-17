@@ -13,8 +13,8 @@ const ChampionshipDetailsPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState('groups');
 
-  if (isLoading) return <Spin />;
-  if (error) return <Alert message="Erro ao carregar detalhes" type="error" />;
+  if (isLoading) return <Spin size="large" style={{ display: 'block', marginTop: 50 }} />;
+  if (error) return <Alert message="Erro ao carregar detalhes" type="error" style={{ margin: 24 }} />;
   if (!data) return null;
 
   const { championship, standingsByGroup, matchesByGroup, knockoutMatches } = data;
@@ -44,7 +44,6 @@ const ChampionshipDetailsPage: React.FC = () => {
     }
   };
 
-  // Renderiza grupos com grid de 2 colunas e destaca classificados
   const renderGroups = () => {
     const groups = Object.entries(standingsByGroup);
     if (groups.length === 0) {
@@ -54,9 +53,15 @@ const ChampionshipDetailsPage: React.FC = () => {
         </Card>
       );
     }
-    const qualifiedCount = championship.qualifiedPerGroup ?? 0; // valor padrão 0
+    const qualifiedCount = championship.qualifiedPerGroup ?? 0;
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
+          gap: '16px',
+        }}
+      >
         {groups.map(([groupIdx, standings]) => {
           const groupIndex = parseInt(groupIdx);
           const groupMatches = matchesByGroup[groupIndex] || [];
@@ -85,7 +90,13 @@ const ChampionshipDetailsPage: React.FC = () => {
       );
     }
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
+          gap: '16px',
+        }}
+      >
         {groups.map(([groupIdx, matches]) => (
           <GroupMatches
             key={groupIdx}
@@ -136,10 +147,19 @@ const ChampionshipDetailsPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <h1 style={{ fontSize: 48, color: '#01ff69' }}>{championship.name}</h1>
-      <p style={{ fontSize: 24 }}>Status: {championship.status}</p>
-      <Tabs activeKey={activeTab} items={tabItems} onChange={setActiveTab} />
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 1400, margin: '0 auto' }}>
+      <h1 style={{ fontSize: 'clamp(24px, 6vw, 48px)', color: '#01ff69', margin: '0 0 8px 0' }}>
+        {championship.name}
+      </h1>
+      <p style={{ fontSize: 'clamp(16px, 3vw, 24px)', color: '#aaa', margin: '0 0 16px 0' }}>
+        Status: {championship.status === 'FINISHED' ? 'Finalizado' : championship.status === 'IN_PROGRESS' ? 'Em andamento' : 'Não iniciado'}
+      </p>
+      <Tabs
+        activeKey={activeTab}
+        items={tabItems}
+        onChange={setActiveTab}
+        style={{ overflowX: 'auto' }}
+      />
     </div>
   );
 };

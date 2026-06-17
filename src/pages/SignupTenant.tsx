@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, Form, Input, message } from "antd";
+import { Card, Form, Input, message } from "antd";
 import { registerTenant } from "../api/auth";
 import { useNavigate, Link } from "react-router-dom";
 import AppButton from "../components/AppButton";

@@ -36,7 +36,7 @@ const ChampionshipDetailsPage: React.FC = () => {
     };
   }, []);
 
-  if (isLoading) return <Spin />;
+  if (isLoading) return <Spin size="large" style={{ display: 'block', marginTop: 50 }} />;
   if (error) return <Alert message="Erro ao carregar detalhes" type="error" />;
   if (!data) return null;
 
@@ -115,7 +115,13 @@ const ChampionshipDetailsPage: React.FC = () => {
     }
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))',
+          gap: '16px',
+        }}
+      >
         {groups.map(([groupIdx, standings]) => {
           const groupIndex = parseInt(groupIdx);
           const groupMatches = matchesByGroup[groupIndex] || [];
@@ -144,7 +150,13 @@ const ChampionshipDetailsPage: React.FC = () => {
       );
     }
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))',
+          gap: '16px',
+        }}
+      >
         {groups.map(([groupIdx, matches]) => (
           <GroupMatches
             key={groupIdx}
@@ -242,27 +254,43 @@ const ChampionshipDetailsPage: React.FC = () => {
       ];
 
   return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{ fontSize: 48, color: '#01ff69', margin: 0 }}>{championship.name}</h1>
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 1400, margin: '0 auto' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 12,
+          marginBottom: 16,
+        }}
+      >
+        <h1 style={{ fontSize: 'clamp(24px, 6vw, 48px)', color: '#01ff69', margin: 0 }}>
+          {championship.name}
+        </h1>
         {!isKnockoutFormat && (
           <Button
             icon={<FullscreenOutlined />}
             onClick={() => setFullscreenGroups(true)}
-            style={{ fontSize: 20, padding: '20px 30px' }}
+            style={{ fontSize: 'clamp(14px, 2vw, 20px)', padding: 'clamp(12px, 2vw, 20px) clamp(16px, 3vw, 30px)' }}
           >
             Tela Cheia
           </Button>
         )}
       </div>
 
-      <Tabs activeKey={activeTab} items={tabItems} onChange={setActiveTab} />
+      <Tabs
+        activeKey={activeTab}
+        items={tabItems}
+        onChange={setActiveTab}
+        style={{ overflowX: 'auto' }}
+      />
 
       {/* Modal de tela cheia (apenas para formato com grupos) */}
       {!isKnockoutFormat && (
         <Modal
           title={
-            <div style={{ fontSize: '32px', fontWeight: 700, textAlign: 'center', color: '#4CAF50', width: '100%', paddingBottom: 8 }}>
+            <div style={{ fontSize: 'clamp(18px, 4vw, 32px)', fontWeight: 700, textAlign: 'center', color: '#4CAF50', width: '100%', paddingBottom: 8 }}>
               Classificação
             </div>
           }

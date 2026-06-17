@@ -17,6 +17,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ResponsiveContainer,
 } from 'recharts';
 
 const { Title } = Typography;
@@ -63,12 +64,13 @@ const StatCard: React.FC<{
       backgroundColor: '#1a1a1a',
       borderColor: '#333',
       borderRadius: 8,
+      height: '100%',
     }}
   >
     <Statistic
-      title={<span style={{ color: '#aaa', fontSize: 16 }}>{title}</span>}
+      title={<span style={{ color: '#aaa', fontSize: 'clamp(12px, 2vw, 16px)' }}>{title}</span>}
       value={value}
-      valueStyle={{ color, fontSize: 36, fontWeight: 'bold' }}
+      valueStyle={{ color, fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 'bold' }}
       prefix={icon}
     />
   </Card>
@@ -180,6 +182,8 @@ export default function PlayerPerformancePage() {
       title: 'Atleta',
       dataIndex: 'name',
       key: 'name',
+      width: 160,
+      ellipsis: true,
       render: (name: string) => (
         <span style={{ color: '#fff', fontWeight: 600 }}>{name}</span>
       ),
@@ -188,8 +192,8 @@ export default function PlayerPerformancePage() {
       title: 'Overall',
       dataIndex: 'overall',
       key: 'overall',
-      sorter: (a: PlayerPerformance, b: PlayerPerformance) =>
-        a.overall - b.overall,
+      width: 90,
+      sorter: (a: PlayerPerformance, b: PlayerPerformance) => a.overall - b.overall,
       render: (val: number) => (
         <Tag color={val >= 4 ? 'green' : val >= 3 ? 'gold' : 'red'}>
           {val.toFixed(1)}
@@ -200,6 +204,7 @@ export default function PlayerPerformancePage() {
       title: skill,
       dataIndex: ['skills', skill],
       key: skill,
+      width: 80,
       render: (val: number) =>
         val != null ? (
           <span
@@ -222,6 +227,7 @@ export default function PlayerPerformancePage() {
       title: 'Nível',
       dataIndex: 'nivel',
       key: 'nivel',
+      width: 110,
       render: (nivel: string) => (
         <span
           style={{
@@ -242,10 +248,12 @@ export default function PlayerPerformancePage() {
     {
       title: 'Progresso',
       key: 'bar',
+      width: 90,
       render: (_: any, record: PlayerPerformance) => (
         <div
           style={{
-            width: 80,
+            width: '100%',
+            maxWidth: 80,
             height: 8,
             background: '#21314d',
             borderRadius: 99,
@@ -266,6 +274,7 @@ export default function PlayerPerformancePage() {
     {
       title: 'Evolução',
       key: 'evolution',
+      width: 100,
       render: (_: any, record: PlayerPerformance) => (
         <Button
           icon={<LineChartOutlined />}
@@ -282,13 +291,13 @@ export default function PlayerPerformancePage() {
     return <Spin size="large" style={{ display: 'block', marginTop: 50 }} />;
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={2} style={{ color: '#01ff69', marginBottom: 24 }}>
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 1400, margin: '0 auto' }}>
+      <Title level={2} style={{ color: '#01ff69', marginBottom: 24, fontSize: 'clamp(20px, 5vw, 28px)' }}>
         🏐 Desempenho dos Atletas
       </Title>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={12} sm={6}>
           <StatCard
             icon={<UserOutlined />}
             title="ATLETAS"
@@ -296,7 +305,7 @@ export default function PlayerPerformancePage() {
             color="#01ff69"
           />
         </Col>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={12} sm={6}>
           <StatCard
             icon={<StarOutlined />}
             title="MÉDIA GERAL"
@@ -304,7 +313,7 @@ export default function PlayerPerformancePage() {
             color="#38bdf8"
           />
         </Col>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={12} sm={6}>
           <StatCard
             icon={<TrophyOutlined />}
             title="ELITE"
@@ -312,7 +321,7 @@ export default function PlayerPerformancePage() {
             color="#f59e0b"
           />
         </Col>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={12} sm={6}>
           <StatCard
             icon={<RiseOutlined />}
             title="A DESENVOLVER"
@@ -322,18 +331,18 @@ export default function PlayerPerformancePage() {
         </Col>
       </Row>
 
-      <Space style={{ marginBottom: 16, flexWrap: 'wrap' }}>
+      <Space style={{ marginBottom: 16, flexWrap: 'wrap' }} size={[8, 8]}>
         <Input
           prefix={<SearchOutlined />}
           placeholder="Buscar atleta..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 250 }}
+          style={{ width: 'clamp(180px, 100%, 250px)' }}
         />
         <Select
           placeholder="Filtrar por nível"
           allowClear
-          style={{ width: 180 }}
+          style={{ width: 'clamp(150px, 100%, 180px)' }}
           value={levelFilter}
           onChange={setLevelFilter}
           options={[
@@ -347,7 +356,7 @@ export default function PlayerPerformancePage() {
         />
         <Select
           placeholder="Ordenar por"
-          style={{ width: 200 }}
+          style={{ width: 'clamp(150px, 100%, 200px)' }}
           value={sortSkill}
           onChange={setSortSkill}
           options={[
@@ -359,7 +368,7 @@ export default function PlayerPerformancePage() {
 
       <Card
         title={
-          <span style={{ color: '#01ff69', fontSize: 20 }}>Ranking Geral</span>
+          <span style={{ color: '#01ff69', fontSize: 'clamp(16px, 2.5vw, 20px)' }}>Ranking Geral</span>
         }
         style={{
           backgroundColor: '#1a1a1a',
@@ -372,8 +381,8 @@ export default function PlayerPerformancePage() {
           dataSource={filtered}
           columns={columns}
           rowKey="id"
-          pagination={{ pageSize: 15 }}
-          scroll={{ x: 1000 }}
+          pagination={{ pageSize: 15, responsive: true }}
+          scroll={{ x: 'max-content' }}
           style={{ backgroundColor: '#1a1a1a' }}
           rowClassName={() => 'dark-row'}
         />
@@ -384,45 +393,45 @@ export default function PlayerPerformancePage() {
         open={evolutionModalOpen}
         onCancel={() => setEvolutionModalOpen(false)}
         footer={null}
-        width={900}
+        width="min(95vw, 900px)"
         style={{ top: 20 }}
-        styles={{ body: { backgroundColor: '#1a1a1a', padding: '24px' }}}
+        styles={{ body: { backgroundColor: '#1a1a1a', padding: 'clamp(12px, 3vw, 24px)' }}}
       >
         {evolutionLoading ? (
           <Spin />
         ) : evolutionData.length > 0 ? (
-          <div style={{ width: '100%', height: 400 }}>
-            <LineChart
-              width={800}
-              height={400}
-              data={evolutionData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis dataKey="date" stroke="#aaa" />
-              <YAxis domain={[0, 5]} ticks={[0, 1, 2, 3, 4, 5]} stroke="#aaa" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1a1a1a',
-                  border: '1px solid #333',
-                  borderRadius: 8,
-                }}
-              />
-              <Legend />
-              {evolutionSkills.map((skill, idx) => (
-                <Line
-                  key={skill}
-                  type="monotone"
-                  dataKey={skill}
-                  stroke={
-                    ['#38bdf8', '#22c55e', '#f59e0b', '#a78bfa', '#ef4444'][idx % 5]
-                  }
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  connectNulls={false}
+          <div style={{ width: '100%', height: 'clamp(250px, 50vw, 400px)' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={evolutionData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="date" stroke="#aaa" tick={{ fontSize: 12 }} />
+                <YAxis domain={[0, 5]} ticks={[0, 1, 2, 3, 4, 5]} stroke="#aaa" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #333',
+                    borderRadius: 8,
+                  }}
                 />
-              ))}
-            </LineChart>
+                <Legend />
+                {evolutionSkills.map((skill, idx) => (
+                  <Line
+                    key={skill}
+                    type="monotone"
+                    dataKey={skill}
+                    stroke={
+                      ['#38bdf8', '#22c55e', '#f59e0b', '#a78bfa', '#ef4444'][idx % 5]
+                    }
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                    connectNulls={false}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>

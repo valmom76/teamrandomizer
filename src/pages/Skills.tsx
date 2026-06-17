@@ -1,7 +1,7 @@
-import { Card, Form, Input, Space, Table, message } from "antd";
+import { Card, Col, Form, Input, Row, Space, Table, message } from "antd";
 import { useEffect, useState } from "react";
 import { createSkill, listSkills } from "../api/skills";
-import type { Skill } from "../api/skills"
+import type { Skill } from "../api/skills";
 import AppButton from "../components/AppButton";
 
 export default function Skills() {
@@ -24,7 +24,7 @@ export default function Skills() {
   }, []);
 
   async function onCreate(values: any) {
-    try {        
+    try {
       await createSkill(values);
       message.success("Skill criada");
       await refresh();
@@ -33,30 +33,55 @@ export default function Skills() {
     }
   }
 
-  return (
-    <Space direction="vertical" style={{ width: "100%" }} size={16}>
-      <Card title="Nova Skill">
-        <Form layout="inline" onFinish={onCreate}>
-          <Form.Item name="name" rules={[{ required: true }]} label="Nome">
-            <Input placeholder="Saque" style={{ width: 280 }} />
-          </Form.Item>
-          <AppButton tone="generate" htmlType="submit">
-            Adicionar
-          </AppButton>
-        </Form>
-      </Card>
+  const cardBodyStyle = { padding: 'clamp(12px, 3vw, 24px)' };
 
-      <Card title="Skills">
-        <Table
-          rowKey="id"
-          loading={loading}
-          dataSource={items}
-          columns={[
-            { title: "Nome", dataIndex: "name" },
-            { title: "Ativa", dataIndex: "active", render: (v) => (v ? "Sim" : "Não") },
-          ]}
-        />
-      </Card>
-    </Space>
+  return (
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 800, margin: '0 auto' }}>
+      <Space orientation="vertical" style={{ width: "100%" }} size={16}>
+        <Card
+          title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)' }}>Nova Skill</span>}
+          styles={{ body: cardBodyStyle }}
+        >
+          <Form layout="vertical" onFinish={onCreate}>
+            <Row gutter={[12, 8]} align="bottom">
+              <Col xs={24} sm={18} md={20}>
+                <Form.Item
+                  name="name"
+                  rules={[{ required: true, message: "Informe o nome da skill" }]}
+                  label="Nome"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input placeholder="Ex: Saque, Ataque, Defesa..." />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={6} md={4}>
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <AppButton tone="generate" htmlType="submit" style={{ width: "100%" }}>
+                    Adicionar
+                  </AppButton>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
+
+        <Card
+          title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)' }}>Skills</span>}
+          styles={{ body: cardBodyStyle }}
+        >
+          <Table
+            rowKey="id"
+            loading={loading}
+            dataSource={items}
+            columns={[
+              { title: "Nome", dataIndex: "name", width: "60%" },
+              { title: "Ativa", dataIndex: "active", width: "40%", render: (v) => (v ? "Sim" : "Não") },
+            ]}
+            scroll={{ x: 'max-content' }}
+            pagination={{ responsive: true, pageSize: 10, showSizeChanger: false }}
+          />
+        </Card>
+      </Space>
+    </div>
   );
 }

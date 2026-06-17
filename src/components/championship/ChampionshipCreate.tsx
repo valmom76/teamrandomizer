@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Radio, InputNumber, Button, message, Card, Spin, List } from 'antd';
+import { Form, Input, Select, Radio, InputNumber, Button, message, Card, Spin, List, Row, Col } from 'antd';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { http } from '../../api/http';
 import { useChampionships } from '../../hooks/useChampionships';
@@ -22,7 +22,6 @@ export const ChampionshipCreate: React.FC = () => {
   const navigate = useNavigate();
   const { createChampionship, isCreating } = useChampionships();
 
-  // Observa o formato selecionado para esconder/mostrar campos de grupos
   const selectedFormat = Form.useWatch('format', form);
 
   useEffect(() => {
@@ -64,12 +63,10 @@ export const ChampionshipCreate: React.FC = () => {
       name: values.name,
       generationSessionId: selectedSession,
       format: values.format,
-      // Campos de grupos (só enviar se não for KNOCKOUT)
       groupsCount: values.format !== 'KNOCKOUT' ? values.groupsCount : 0,
       qualifiedPerGroup: values.format !== 'KNOCKOUT' ? values.qualifiedPerGroup : 0,
       matchesType: values.matchesType,
       teamNames: nonEmptyNames,
-      // Configurações de sets (comuns a todos os formatos)
       setsToWin: values.setsToWin,
       pointsPerSet: values.pointsPerSet,
       tieBreakPoints: values.tieBreakPoints,
@@ -83,94 +80,157 @@ export const ChampionshipCreate: React.FC = () => {
   };
 
   return (
-    <Card title="Criar Campeonato" style={{ maxWidth: 800, margin: '0 auto' }}>
-      <Form form={form} onFinish={onFinish} layout="vertical">
-        <Form.Item name="name" label="Nome do Campeonato" rules={[{ required: true }]}>
-          <Input placeholder="Ex.: Copa BoraVer 2025" />
-        </Form.Item>
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 900, margin: '0 auto' }}>
+      <Card
+        title={<span style={{ fontSize: 'clamp(18px, 3vw, 24px)', color: '#01ff69', fontWeight: 'bold' }}>🏆 Criar Campeonato</span>}
+        style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: 8 }}
+        styles={{ body: { padding: 'clamp(16px, 3vw, 24px)' } }}
+      >
+        <Form form={form} onFinish={onFinish} layout="vertical">
+          <Row gutter={[16, 8]}>
+            <Col xs={24}>
+              <Form.Item name="name" label="Nome do Campeonato" rules={[{ required: true, message: 'Informe o nome' }]}>
+                <Input placeholder="Ex.: Copa BoraVer 2025" />
+              </Form.Item>
+            </Col>
 
-        <Form.Item label="Sessão de Times" required>
-          <Select value={selectedSession} onChange={setSelectedSession} placeholder="Selecione a sessão">
-            {sessions.map(s => (
-              <Select.Option key={s.sessionId} value={s.sessionId}>
-                {new Date(s.createdAt).toLocaleDateString()} - {s.sessionId}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+            <Col xs={24} sm={12}>
+              <Form.Item label="Sessão de Times" required>
+                <Select
+                  value={selectedSession}
+                  onChange={setSelectedSession}
+                  placeholder="Selecione a sessão"
+                  style={{ width: '100%' }}
+                >
+                  {sessions.map(s => (
+                    <Select.Option key={s.sessionId} value={s.sessionId}>
+                      {new Date(s.createdAt).toLocaleDateString()} - {s.sessionId}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
 
-        {selectedSession && (
-          <Card title="Times da Sessão" size="small" style={{ marginBottom: 16 }}>
-            {loadingTeams ? <Spin /> : (
-              <List
-                size="small"
-                dataSource={teams}
-                renderItem={team => (
-                  <List.Item>
-                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                      <span style={{ marginRight: 8, fontWeight: 600 }}>Time {team.teamIndex}:</span>
-                      <Input
-                        placeholder={`Time ${team.teamIndex}`}
-                        value={teamNames[team.teamIndex]}
-                        onChange={e => updateTeamName(team.teamIndex, e.target.value)}
-                        style={{ flex: 1 }}
-                      />
-                    </div>
-                  </List.Item>
-                )}
-              />
+            <Col xs={24}>
+              <Form.Item name="format" label="Formato" initialValue="GROUPS" rules={[{ required: true }]}>
+                <Radio.Group style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <Radio value="GROUPS">Fase de Grupos + Eliminatórias</Radio>
+                  <Radio value="KNOCKOUT">Eliminatórias Diretas</Radio>
+                  <Radio value="LEAGUE">Pontos Corridos</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Col>
+
+            {selectedFormat !== 'KNOCKOUT' && (
+              <>
+                <Col xs={12} sm={12} md={8}>
+                  <Form.Item name="groupsCount" label="Nº de Grupos" initialValue={2} rules={[{ required: true }]}>
+                    <InputNumber min={1} style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+                <Col xs={12} sm={12} md={8}>
+                  <Form.Item name="qualifiedPerGroup" label="Classificados por Grupo" initialValue={2} rules={[{ required: true }]}>
+                    <InputNumber min={1} style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+              </>
             )}
-          </Card>
-        )}
 
-        <Form.Item name="format" label="Formato" initialValue="GROUPS" rules={[{ required: true }]}>
-          <Radio.Group>
-            <Radio value="GROUPS">Fase de Grupos + Eliminatórias</Radio>
-            <Radio value="KNOCKOUT">Eliminatórias Diretas</Radio>
-            <Radio value="LEAGUE">Pontos Corridos</Radio>
-          </Radio.Group>
-        </Form.Item>
+            <Col xs={24} sm={12}>
+              <Form.Item name="matchesType" label="Tipo de Partidas" initialValue="SINGLE" rules={[{ required: true }]}>
+                <Radio.Group>
+                  <Radio value="SINGLE">Ida</Radio>
+                  <Radio value="HOME_AND_AWAY">Ida e Volta</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Col>
 
-        {/* Campos de grupos: só aparecem se NÃO for KNOCKOUT */}
-        {selectedFormat !== 'KNOCKOUT' && (
-          <>
-            <Form.Item name="groupsCount" label="Número de Grupos" initialValue={2} rules={[{ required: true }]}>
-              <InputNumber min={1} />
-            </Form.Item>
-            <Form.Item name="qualifiedPerGroup" label="Classificados por Grupo" initialValue={2} rules={[{ required: true }]}>
-              <InputNumber min={1} />
-            </Form.Item>
-          </>
-        )}
+            <Col xs={24}>
+              <Card
+                title="Configuração de Sets"
+                size="small"
+                style={{ backgroundColor: '#262626', borderColor: '#333', marginBottom: 0 }}
+                styles={{ body: { padding: 'clamp(12px, 2vw, 16px)' } }}
+              >
+                <Row gutter={[16, 8]}>
+                  <Col xs={24} sm={8}>
+                    <Form.Item name="setsToWin" label="Sets para vencer" initialValue={2} rules={[{ required: true }]}>
+                      <Select style={{ width: '100%' }}>
+                        <Select.Option value={1}>Melhor de 1 set</Select.Option>
+                        <Select.Option value={2}>Melhor de 3 sets</Select.Option>
+                        <Select.Option value={3}>Melhor de 5 sets</Select.Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col xs={12} sm={8}>
+                    <Form.Item name="pointsPerSet" label="Pontos por set" initialValue={25} rules={[{ required: true }]}>
+                      <InputNumber min={10} max={30} style={{ width: '100%' }} />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={12} sm={8}>
+                    <Form.Item name="tieBreakPoints" label="Tie-break" initialValue={15} rules={[{ required: true }]}>
+                      <InputNumber min={10} max={25} style={{ width: '100%' }} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
 
-        <Form.Item name="matchesType" label="Tipo de Partidas" initialValue="SINGLE" rules={[{ required: true }]}>
-          <Radio.Group>
-            <Radio value="SINGLE">Somente Ida</Radio>
-            <Radio value="HOME_AND_AWAY">Ida e Volta</Radio>
-          </Radio.Group>
-        </Form.Item>
+            {selectedSession && (
+              <Col xs={24}>
+                <Card
+                  title="Times da Sessão"
+                  size="small"
+                  style={{ backgroundColor: '#262626', borderColor: '#333' }}
+                  styles={{ body: { padding: 'clamp(12px, 2vw, 16px)' } }}
+                >
+                  {loadingTeams ? (
+                    <Spin />
+                  ) : (
+                    <List
+                      size="small"
+                      dataSource={teams}
+                      renderItem={team => (
+                        <List.Item style={{ padding: '8px 0' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 600, color: '#ccc', whiteSpace: 'nowrap' }}>Time {team.teamIndex}:</span>
+                            <Input
+                              placeholder={`Time ${team.teamIndex}`}
+                              value={teamNames[team.teamIndex]}
+                              onChange={e => updateTeamName(team.teamIndex, e.target.value)}
+                              style={{ flex: 1, minWidth: 150 }}
+                            />
+                          </div>
+                        </List.Item>
+                      )}
+                    />
+                  )}
+                </Card>
+              </Col>
+            )}
 
-        {/* Configurações de sets (comuns a todos os formatos) */}
-        <Card title="Configuração de Sets" size="small" style={{ marginBottom: 16, backgroundColor: '#1a1a1a', borderColor: '#333' }}>
-          <Form.Item name="setsToWin" label="Sets para vencer" initialValue={2} rules={[{ required: true }]}>
-            <Select>
-              <Select.Option value={1}>Melhor de 1 set</Select.Option>
-              <Select.Option value={2}>Melhor de 3 sets</Select.Option>
-              <Select.Option value={3}>Melhor de 5 sets</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name="pointsPerSet" label="Pontos por set" initialValue={25} rules={[{ required: true }]}>
-            <InputNumber min={10} max={30} />
-          </Form.Item>
-          <Form.Item name="tieBreakPoints" label="Pontos no tie‑break" initialValue={15} rules={[{ required: true }]}>
-            <InputNumber min={10} max={25} />
-          </Form.Item>
-        </Card>
-
-        <Button type="primary" htmlType="submit" loading={isCreating} block>
-          Criar Campeonato
-        </Button>
-      </Form>
-    </Card>
+            <Col xs={24}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={isCreating}
+                block
+                size="large"
+                style={{
+                  backgroundColor: '#01ff69',
+                  borderColor: '#01ff69',
+                  color: '#1a1a1a',
+                  fontWeight: 'bold',
+                  height: 48,
+                  fontSize: 'clamp(16px, 2vw, 18px)',
+                }}
+              >
+                Criar Campeonato
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Card>
+    </div>
   );
 };

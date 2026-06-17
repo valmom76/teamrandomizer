@@ -284,17 +284,13 @@ export default function TeamGenerator() {
     marginBottom: 16,
   };
 
-  const headerStyle = {
-    color: "#01ff69",
-    fontSize: 28,
-    fontWeight: "bold",
-  };
+  const cardBodyStyle = { padding: 'clamp(12px, 3vw, 24px)' };
 
   const tabsItems: TabsProps["items"] = [
     {
       key: "database",
       label: (
-        <span style={{ fontSize: 20, fontWeight: "bold" }}>
+        <span style={{ fontSize: 'clamp(14px, 2.5vw, 20px)', fontWeight: "bold" }}>
           <DatabaseOutlined /> Sorteio
         </span>
       ),
@@ -302,7 +298,7 @@ export default function TeamGenerator() {
     {
       key: "potes",
       label: (
-        <span style={{ fontSize: 20, fontWeight: "bold" }}>
+        <span style={{ fontSize: 'clamp(14px, 2.5vw, 20px)', fontWeight: "bold" }}>
           <FundOutlined /> Potes
         </span>
       ),
@@ -310,7 +306,7 @@ export default function TeamGenerator() {
     {
       key: "upload",
       label: (
-        <span style={{ fontSize: 20, fontWeight: "bold" }}>
+        <span style={{ fontSize: 'clamp(14px, 2.5vw, 20px)', fontWeight: "bold" }}>
           <UploadOutlined /> Upload TXT
         </span>
       ),
@@ -322,7 +318,7 @@ export default function TeamGenerator() {
   }, []);
 
   return (
-    <div className="team-generator-compact">
+    <div className="team-generator-compact" style={{ padding: 'clamp(8px, 2vw, 16px)' }}>
       <div className="main-tabs">
         <Tabs
           activeKey={activeTab}
@@ -334,16 +330,16 @@ export default function TeamGenerator() {
       </div>
 
       {activeTab === "upload" && (
-        <div className="main-content">
+        <div className="main-content" style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
           <div
             className="controls-column ui-scroll"
-            style={{ overflow: "auto" }}
+            style={{ overflow: "auto", flex: '1 1 350px', minWidth: 280 }}
           >
-            <Card style={darkCardStyle} styles={{ header: { ...headerStyle } }}>
+            <Card style={darkCardStyle} styles={{ body: cardBodyStyle }}>
               <FileUpload key={key} onFileUpload={handleFileUpload} />
               {fileName && (
                 <div style={{ marginTop: 12 }}>
-                  <Text style={{ color: "#01ff69", fontSize: 16 }}>
+                  <Text style={{ color: "#01ff69", fontSize: 'clamp(14px, 2vw, 16px)' }}>
                     📁 {fileName}
                   </Text>
                 </div>
@@ -355,15 +351,17 @@ export default function TeamGenerator() {
                 <Card
                   style={darkCardStyle}
                   title={
-                    <span style={headerStyle}>⚙️ Configuração</span>
+                    <span style={{ color: "#01ff69", fontSize: 'clamp(16px, 2.5vw, 20px)', fontWeight: "bold" }}>
+                      ⚙️ Configuração
+                    </span>
                   }
-                  styles={{ header: { borderBottom: "1px solid #333" } }}
+                  styles={{ header: { borderBottom: "1px solid #333" }, body: cardBodyStyle }}
                 >
                   <div style={{ marginBottom: 16 }}>
-                    <Text style={{ color: "#aaa", fontSize: 16 }}>
+                    <Text style={{ color: "#aaa", fontSize: 'clamp(14px, 2vw, 16px)' }}>
                       Times a gerar:
                     </Text>
-                    <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                    <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                       <input
                         type="number"
                         min={1}
@@ -385,8 +383,8 @@ export default function TeamGenerator() {
                           );
                         }}
                         style={{
-                          width: 100,
-                          fontSize: 24,
+                          width: 80,
+                          fontSize: 'clamp(18px, 3vw, 24px)',
                           textAlign: "center",
                           backgroundColor: "#262626",
                           color: "#fff",
@@ -394,7 +392,7 @@ export default function TeamGenerator() {
                           borderRadius: 6,
                         }}
                       />
-                      <Space>
+                      <Space size={[4, 4]} wrap>
                         {[4, 6, 8].map((n) => {
                           const disabled =
                             maxPossibleTeamsTxt > 0
@@ -414,6 +412,7 @@ export default function TeamGenerator() {
                                 )
                               }
                               disabled={disabled}
+                              style={{ fontSize: 13 }}
                             >
                               {n}
                             </AppButton>
@@ -428,10 +427,11 @@ export default function TeamGenerator() {
                         color: "#1a1a1a",
                         fontWeight: "bold",
                         fontSize: 14,
+                        marginTop: 8,
                       }}
                     />
                   </div>
-                  <Text style={{ color: "#aaa" }}>
+                  <Text style={{ color: "#aaa", fontSize: 'clamp(12px, 1.8vw, 14px)' }}>
                     {totalPlayersTxt} jogadores carregados
                   </Text>
                 </Card>
@@ -439,13 +439,13 @@ export default function TeamGenerator() {
                 <Card
                   style={darkCardStyle}
                   title={
-                    <span style={headerStyle}>
+                    <span style={{ color: "#01ff69", fontSize: 'clamp(16px, 2.5vw, 20px)', fontWeight: "bold" }}>
                       <TeamOutlined /> Jogadores Carregados
                     </span>
                   }
-                  styles={{ header: { borderBottom: "1px solid #333" } }}
+                  styles={{ header: { borderBottom: "1px solid #333" }, body: cardBodyStyle }}
                 >
-                  <div className="columns-grid">
+                  <div className="columns-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                     <PlayerColumn
                       players={playersTxt.coluna1}
                       pot={1}
@@ -476,15 +476,15 @@ export default function TeamGenerator() {
             )}
           </div>
 
-          <div className="results-column ui-scroll" style={{ overflow: "auto" }}>
+          <div className="results-column ui-scroll" style={{ overflow: "auto", flex: '1 1 400px', minWidth: 300 }}>
             <Card
               style={darkCardStyle}
               title={
-                <span style={headerStyle}>
+                <span style={{ color: "#01ff69", fontSize: 'clamp(16px, 2.5vw, 20px)', fontWeight: "bold" }}>
                   <ThunderboltOutlined /> Times Gerados (TXT)
                 </span>
               }
-              styles={{ header: { borderBottom: "1px solid #333" } }}
+              styles={{ header: { borderBottom: "1px solid #333" }, body: cardBodyStyle }}
             >
               {hasTeamsTxt ? (
                 <>
@@ -493,14 +493,17 @@ export default function TeamGenerator() {
                       display: "flex",
                       justifyContent: "space-between",
                       marginBottom: 20,
+                      flexWrap: 'wrap',
+                      gap: 8,
                     }}
                   >
-                    <Space>
+                    <Space size={[4, 4]} wrap>
                       <AppButton
                         tone="generate"
                         onClick={generateTeamsTxt}
                         disabled={!canGenerateTxt}
                         icon={<ReloadOutlined />}
+                        style={{ fontSize: 13 }}
                       >
                         Reembaralhar
                       </AppButton>
@@ -508,6 +511,7 @@ export default function TeamGenerator() {
                         tone="copy"
                         onClick={copyTeamsTxtToClipboard}
                         icon={<CopyOutlined />}
+                        style={{ fontSize: 13 }}
                       >
                         Copiar
                       </AppButton>
@@ -516,6 +520,7 @@ export default function TeamGenerator() {
                           tone="reset"
                           onClick={resetAllTxt}
                           icon={<ReloadOutlined />}
+                          style={{ fontSize: 13 }}
                         >
                           Restaurar
                         </AppButton>
@@ -532,16 +537,17 @@ export default function TeamGenerator() {
                     />
                   </div>
 
-                  <div className="tg-teams-grid ui-scroll">
+                  <div className="tg-teams-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12 }}>
                     {teamsTxt.map((team, index) => (
                       <div key={index} className="tg-team-card">
-                        <div className="tg-team-name">{team.nome}</div>
+                        <div className="tg-team-name" style={{ fontSize: 'clamp(16px, 2vw, 18px)' }}>{team.nome}</div>
                         <div className="tg-team-players">
                           {team.jogadores.map((jogador, idx) => (
                             <div key={idx} className="tg-team-player">
                               <span
                                 className="tg-player-name"
                                 title={jogador}
+                                style={{ fontSize: 'clamp(13px, 1.5vw, 14px)' }}
                               >
                                 {jogador}
                               </span>
@@ -556,18 +562,18 @@ export default function TeamGenerator() {
                 <div
                   style={{
                     textAlign: "center",
-                    padding: 40,
+                    padding: 'clamp(20px, 5vw, 40px)',
                     color: "#aaa",
                   }}
                 >
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>🏐</div>
+                  <div style={{ fontSize: 'clamp(32px, 8vw, 48px)', marginBottom: 16 }}>🏐</div>
                   <Title
                     level={3}
-                    style={{ color: "#fff", marginBottom: 8 }}
+                    style={{ color: "#fff", marginBottom: 8, fontSize: 'clamp(18px, 3vw, 24px)' }}
                   >
                     Nenhum time gerado
                   </Title>
-                  <Text style={{ color: "#aaa", fontSize: 16 }}>
+                  <Text style={{ color: "#aaa", fontSize: 'clamp(14px, 2vw, 16px)' }}>
                     {canGenerateTxt
                       ? `Clique em "Gerar" para criar ${clamp(
                           maxTeamsTxt,

@@ -104,49 +104,27 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
     if (setsToWin === 1) {
       return editablePointsPerSet;
     }
-
     if (setsToWin === 2) {
       const isTieBreak = homeSetsWon === 1 && awaySetsWon === 1;
       return isTieBreak ? editableTieBreakPoints : editablePointsPerSet;
     }
-
     if (setsToWin === 3) {
       const isTieBreak = homeSetsWon === 2 && awaySetsWon === 2;
       return isTieBreak ? editableTieBreakPoints : editablePointsPerSet;
     }
-
     return editablePointsPerSet;
-  }, [
-    setsToWin,
-    editablePointsPerSet,
-    editableTieBreakPoints,
-    homeSetsWon,
-    awaySetsWon,
-  ]);
+  }, [setsToWin, editablePointsPerSet, editableTieBreakPoints, homeSetsWon, awaySetsWon]);
 
   const finishInfo = useMemo(() => {
     const reachedTarget = homeScore >= targetPoints || awayScore >= targetPoints;
     const hasAdvantage = Math.abs(homeScore - awayScore) >= minAdvantage;
-
-    if (!reachedTarget || !hasAdvantage) {
-      return null;
-    }
-
+    if (!reachedTarget || !hasAdvantage) return null;
     const winner: 'home' | 'away' = homeScore > awayScore ? 'home' : 'away';
-
     return {
       winner,
       key: `${currentSet}-${homeScore}-${awayScore}-${winner}-${targetPoints}-${homeSetsWon}-${awaySetsWon}`,
     };
-  }, [
-    homeScore,
-    awayScore,
-    targetPoints,
-    minAdvantage,
-    currentSet,
-    homeSetsWon,
-    awaySetsWon,
-  ]);
+  }, [homeScore, awayScore, targetPoints, minAdvantage, currentSet, homeSetsWon, awaySetsWon]);
 
   const resetAll = () => {
     setHomeScore(0);
@@ -168,17 +146,12 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
 
   useEffect(() => {
     if (!visible) return;
-
     resetAll();
-
     if (generationSessionId) {
       setLoading(true);
-
-      http
-        .get(`/teams/session/${generationSessionId}`)
+      http.get(`/teams/session/${generationSessionId}`)
         .then((res) => {
           const teams: Team[] = res.data;
-
           setHomeTeam(teams.find((t) => t.teamIndex === homeTeamIndex) || null);
           setAwayTeam(teams.find((t) => t.teamIndex === awayTeamIndex) || null);
         })
@@ -188,27 +161,17 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       setHomeTeam(null);
       setAwayTeam(null);
     }
-
     if (championshipId && matchId) {
-      http
-        .get(`/championships/${championshipId}/matches/${matchId}`)
+      http.get(`/championships/${championshipId}/matches/${matchId}`)
         .then((res) => {
           const m = res.data;
-
           if (m.setsToWin) setSetsToWin(m.setsToWin);
           if (m.pointsPerSet) setEditablePointsPerSet(m.pointsPerSet);
           if (m.tieBreakPoints) setEditableTieBreakPoints(m.tieBreakPoints);
         })
         .catch(() => console.warn('Não foi possível carregar detalhes da partida'));
     }
-  }, [
-    visible,
-    championshipId,
-    matchId,
-    generationSessionId,
-    homeTeamIndex,
-    awayTeamIndex,
-  ]);
+  }, [visible, championshipId, matchId, generationSessionId, homeTeamIndex, awayTeamIndex]);
 
   useEffect(() => {
     if (!finishInfo) {
@@ -217,44 +180,26 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       setDismissedFinishKey(null);
       return;
     }
-
-    if (dismissedFinishKey === finishInfo.key) {
-      return;
-    }
-
+    if (dismissedFinishKey === finishInfo.key) return;
     setSetFinished(true);
     setCurrentSetWinner(finishInfo.winner);
-
     if (setsToWin === 1) {
       setMatchWinner(finishInfo.winner);
       setResultModalVisible(true);
       return;
     }
-
     setConfirmSetModalOpen(true);
   }, [finishInfo, dismissedFinishKey, setsToWin]);
 
   const confirmSet = () => {
     if (!currentSetWinner) return;
-
     const homeWon = currentSetWinner === 'home';
-
-    const newSets = [
-      ...sets,
-      {
-        setNumber: currentSet,
-        homeScore,
-        awayScore,
-      },
-    ];
-
+    const newSets = [...sets, { setNumber: currentSet, homeScore, awayScore }];
     const newHomeSets = homeWon ? homeSetsWon + 1 : homeSetsWon;
     const newAwaySets = !homeWon ? awaySetsWon + 1 : awaySetsWon;
-
     setSets(newSets);
     setHomeSetsWon(newHomeSets);
     setAwaySetsWon(newAwaySets);
-
     if (newHomeSets >= setsToWin || newAwaySets >= setsToWin) {
       setMatchWinner(newHomeSets >= setsToWin ? 'home' : 'away');
       setResultModalVisible(true);
@@ -263,7 +208,6 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       setHomeScore(0);
       setAwayScore(0);
     }
-
     setSetFinished(false);
     setCurrentSetWinner(null);
     setConfirmSetModalOpen(false);
@@ -271,20 +215,14 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   };
 
   const cancelSetConfirmation = () => {
-    if (finishInfo) {
-      setDismissedFinishKey(finishInfo.key);
-    }
-
+    if (finishInfo) setDismissedFinishKey(finishInfo.key);
     setSetFinished(false);
     setCurrentSetWinner(null);
     setConfirmSetModalOpen(false);
   };
 
   const cancelResultModal = () => {
-    if (finishInfo) {
-      setDismissedFinishKey(finishInfo.key);
-    }
-
+    if (finishInfo) setDismissedFinishKey(finishInfo.key);
     setMatchWinner(null);
     setResultModalVisible(false);
     setSetFinished(false);
@@ -292,56 +230,26 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   };
 
   const increment = (team: 'home' | 'away') => {
-    if (finishInfo) {
-      return;
-    }
-
-    if (team === 'home') {
-      setHomeScore((prev) => prev + 1);
-    } else {
-      setAwayScore((prev) => prev + 1);
-    }
+    if (finishInfo) return;
+    if (team === 'home') setHomeScore((prev) => prev + 1);
+    else setAwayScore((prev) => prev + 1);
   };
 
   const decrement = (team: 'home' | 'away') => {
-    if (team === 'home' && homeScore > 0) {
-      setHomeScore((prev) => prev - 1);
-    } else if (team === 'away' && awayScore > 0) {
-      setAwayScore((prev) => prev - 1);
-    }
+    if (team === 'home' && homeScore > 0) setHomeScore((prev) => prev - 1);
+    else if (team === 'away' && awayScore > 0) setAwayScore((prev) => prev - 1);
   };
 
   const handleSave = async () => {
     if (!matchWinner) return;
-
     setSaving(true);
-
     try {
-      const finalSets =
-        setsToWin === 1
-          ? [
-              {
-                setNumber: 1,
-                homeScore,
-                awayScore,
-              },
-            ]
-          : sets;
-
+      const finalSets = setsToWin === 1 ? [{ setNumber: 1, homeScore, awayScore }] : sets;
       if (onSave) {
-        await onSave({
-          walkover: false,
-          winnerTeamIndex: matchWinner === 'home' ? homeTeamIndex : awayTeamIndex,
-          sets: finalSets,
-        });
+        await onSave({ walkover: false, winnerTeamIndex: matchWinner === 'home' ? homeTeamIndex : awayTeamIndex, sets: finalSets });
       } else {
-        await http.post(`/championships/${championshipId}/matches/result`, {
-          matchId,
-          walkover: false,
-          sets: finalSets,
-        });
+        await http.post(`/championships/${championshipId}/matches/result`, { matchId, walkover: false, sets: finalSets });
       }
-
       message.success('Resultado registrado com sucesso!');
       onSuccess();
       onClose();
@@ -357,9 +265,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       message.error('Selecione o time vencedor');
       return;
     }
-
     setSaving(true);
-
     try {
       const payload = {
         matchId,
@@ -368,13 +274,8 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
         woWinnerPoints: editablePointsPerSet,
         sets: [],
       };
-
-      if (onSave) {
-        await onSave(payload);
-      } else {
-        await http.post(`/championships/${championshipId}/matches/result`, payload);
-      }
-
+      if (onSave) await onSave(payload);
+      else await http.post(`/championships/${championshipId}/matches/result`, payload);
       message.success('WO registrado!');
       onSuccess();
       onClose();
@@ -397,33 +298,21 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   const handleDragOver = (e: React.DragEvent, side: 'left' | 'right') => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-
-    if (side === 'left') {
-      setDragOverLeft(true);
-    } else {
-      setDragOverRight(true);
-    }
+    if (side === 'left') setDragOverLeft(true);
+    else setDragOverRight(true);
   };
 
   const handleDragLeave = (side: 'left' | 'right') => {
-    if (side === 'left') {
-      setDragOverLeft(false);
-    } else {
-      setDragOverRight(false);
-    }
+    if (side === 'left') setDragOverLeft(false);
+    else setDragOverRight(false);
   };
 
   const handleDrop = (e: React.DragEvent, targetSide: 'left' | 'right') => {
     e.preventDefault();
-
     setDragOverLeft(false);
     setDragOverRight(false);
-
     const sourceSide = e.dataTransfer.getData('text/plain') as 'left' | 'right';
-
-    if (sourceSide !== targetSide) {
-      setSwapped((prev) => !prev);
-    }
+    if (sourceSide !== targetSide) setSwapped((prev) => !prev);
   };
 
   const leftTeam = swapped ? 'away' : 'home';
@@ -432,7 +321,6 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   const renderTeamCard = (side: 'left' | 'right') => {
     const teamKey = side === 'left' ? leftTeam : rightTeam;
     const isHome = teamKey === 'home';
-
     const team = isHome ? homeTeam : awayTeam;
     const score = isHome ? homeScore : awayScore;
     const teamName = isHome ? getHomeName() : getAwayName();
@@ -451,16 +339,28 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           border: dragOver ? '2px dashed #01ff69' : '2px solid transparent',
           borderRadius: 12,
           transition: 'opacity 0.2s, border 0.2s',
+          height: '100%',
         }}
       >
         <Card
           variant="borderless"
           style={{
-            backgroundColor: '#f0f2f5',
-            padding: '8px 0',
+            backgroundColor: '#1a1a1a',
+            padding: 'clamp(8px, 2vw, 16px)',
+            height: '100%',
           }}
+          styles={{ body: { padding: 'clamp(8px, 2vw, 16px)' } }}
         >
-          <Title level={3} style={styles.title}>
+          <Title
+            level={3}
+            style={{
+              fontSize: 'clamp(20px, 5vw, 50px)',
+              fontWeight: 'bold',
+              color: '#fff',
+              textAlign: 'center',
+              marginBottom: 8,
+            }}
+          >
             {teamName}
           </Title>
 
@@ -475,7 +375,15 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               }}
             >
               {team.players.map((p, idx) => (
-                <span key={p.id} style={styles.players}>
+                <span
+                  key={p.id}
+                  style={{
+                    fontSize: 'clamp(12px, 2.5vw, 25px)',
+                    fontWeight: 'bold',
+                    color: '#ccc',
+                    lineHeight: 1.2,
+                  }}
+                >
                   {p.name}
                   {idx < team.players.length - 1 && ' | '}
                 </span>
@@ -488,16 +396,26 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 20,
-              marginTop: 8,
+              gap: 'clamp(8px, 2vw, 20px)',
+              marginTop: 'clamp(8px, 2vw, 16px)',
+              flexWrap: 'wrap',
             }}
           >
-            <div style={styles.score}>{score}</div>
+            <div
+              style={{
+                fontSize: 'clamp(60px, 18vw, 280px)',
+                color: '#01ff69',
+                fontWeight: 'bold',
+                lineHeight: 1,
+              }}
+            >
+              {score}
+            </div>
 
             {setsToWin > 1 && (
               <div
                 style={{
-                  fontSize: 80,
+                  fontSize: 'clamp(30px, 10vw, 80px)',
                   fontWeight: 'bold',
                   color: '#01ff69',
                   display: 'flex',
@@ -505,18 +423,35 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
                   alignItems: 'center',
                 }}
               >
-                <span style={{ fontSize: 24, color: '#aaa' }}>Sets</span>
+                <span style={{ fontSize: 'clamp(14px, 3vw, 24px)', color: '#aaa' }}>Sets</span>
                 <span>{isHome ? homeSetsWon : awaySetsWon}</span>
               </div>
             )}
           </div>
 
-          <Space size="middle" style={{ marginTop: 16 }}>
+          <Space
+            size="middle"
+            style={{
+              marginTop: 'clamp(12px, 2vw, 16px)',
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: 'clamp(8px, 2vw, 16px)',
+            }}
+          >
             <Button
               size="large"
               icon={<MinusOutlined />}
               onClick={() => decrement(isHome ? 'home' : 'away')}
-              style={styles.decrementButton}
+              style={{
+                backgroundColor: '#ff4d4f',
+                borderColor: '#aa0000',
+                color: '#fff',
+                fontWeight: 'bold',
+                height: 'clamp(40px, 8vw, 56px)',
+                width: 'clamp(50px, 12vw, 80px)',
+                fontSize: 'clamp(18px, 3vw, 24px)',
+              }}
             />
 
             <Button
@@ -524,7 +459,15 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => increment(isHome ? 'home' : 'away')}
-              style={styles.incrementButton}
+              style={{
+                backgroundColor: '#01ff69',
+                borderColor: '#00aa09',
+                color: '#000',
+                fontWeight: 'bold',
+                height: 'clamp(40px, 8vw, 56px)',
+                width: 'clamp(50px, 12vw, 80px)',
+                fontSize: 'clamp(18px, 3vw, 24px)',
+              }}
             />
           </Space>
         </Card>
@@ -539,21 +482,8 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       onCancel={onClose}
       footer={null}
       width="100vw"
-      style={{
-        top: 0,
-        maxWidth: '100vw',
-        height: '100vh',
-        padding: 0,
-        overflow: 'hidden',
-      }}
-      styles={{
-        body: {
-          height: 'calc(100vh - 55px)',
-          padding: 16,
-          overflow: 'auto',
-          position: 'relative',
-        },
-      }}
+      style={{ top: 0, maxWidth: '100vw', height: '100vh', padding: 0, overflow: 'hidden' }}
+      styles={{ body: { height: 'calc(100vh - 55px)', padding: 'clamp(8px, 2vw, 16px)', overflow: 'auto', position: 'relative' } }}
       closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
     >
       <div style={{ position: 'relative', minHeight: '100%' }}>
@@ -565,7 +495,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '240px',
+            width: 'clamp(120px, 30vw, 240px)',
             height: 'auto',
             opacity: 0.1,
             pointerEvents: 'none',
@@ -574,7 +504,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
         />
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 20, fontSize: 40 }}>
+          <div style={{ textAlign: 'center', padding: 20, fontSize: 'clamp(20px, 5vw, 40px)', color: '#aaa' }}>
             Carregando times...
           </div>
         ) : (
@@ -592,38 +522,18 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               }}
             >
               <Tooltip title="Configurar regras">
-                <Button
-                  icon={<SettingOutlined />}
-                  onClick={() => setSettingsVisible(true)}
-                />
+                <Button icon={<SettingOutlined />} onClick={() => setSettingsVisible(true)} />
               </Tooltip>
-
               <Tooltip title="Registrar WO (Walkover)">
-                <Button
-                  icon={<WarningOutlined />}
-                  onClick={() => setWoModalVisible(true)}
-                  danger
-                >
-                  Registrar WO
+                <Button icon={<WarningOutlined />} onClick={() => setWoModalVisible(true)} danger>
+                  WO
                 </Button>
               </Tooltip>
-
               <Tooltip title="Inverter lados">
-                <Button
-                  icon={<SwapOutlined />}
-                  onClick={() => setSwapped((prev) => !prev)}
-                  style={{ marginLeft: 'auto' }}
-                />
+                <Button icon={<SwapOutlined />} onClick={() => setSwapped((prev) => !prev)} style={{ marginLeft: 'auto' }} />
               </Tooltip>
-
               {setsToWin > 1 && (
-                <Tag
-                  color="blue"
-                  style={{
-                    fontSize: 18,
-                    padding: '6px 16px',
-                  }}
-                >
+                <Tag color="blue" style={{ fontSize: 'clamp(14px, 2.5vw, 18px)', padding: '4px 12px' }}>
                   Set {currentSet} | {homeSetsWon} x {awaySetsWon}
                 </Tag>
               )}
@@ -632,23 +542,17 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
             <Row
               gutter={[16, 32]}
               justify="center"
-              align="middle"
-              style={{
-                minHeight: '70vh',
-                position: 'relative',
-                zIndex: 1,
-              }}
+              align="stretch"
+              style={{ minHeight: '70vh', position: 'relative', zIndex: 1 }}
             >
-              <Col xs={24} md={10} style={{ textAlign: 'center' }}>
-                {renderTeamCard('left')}
+              <Col xs={24} md={10} style={{ display: 'flex' }}>
+                <div style={{ width: '100%' }}>{renderTeamCard('left')}</div>
               </Col>
-
-              <Col xs={24} md={4} style={{ textAlign: 'center' }}>
-                <Text style={{ fontSize: 68 }}></Text>
+              <Col xs={0} md={4} style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 'clamp(30px, 6vw, 68px)', color: '#fff' }}>VS</Text>
               </Col>
-
-              <Col xs={24} md={10} style={{ textAlign: 'center' }}>
-                {renderTeamCard('right')}
+              <Col xs={24} md={10} style={{ display: 'flex' }}>
+                <div style={{ width: '100%' }}>{renderTeamCard('right')}</div>
               </Col>
             </Row>
           </>
@@ -661,29 +565,22 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           maskClosable={false}
           keyboard={false}
           footer={[
-            <Button key="cancel" onClick={cancelSetConfirmation}>
-              Continuar jogando
-            </Button>,
-            <Button key="confirm" type="primary" onClick={confirmSet}>
-              Confirmar set
-            </Button>,
+            <Button key="cancel" onClick={cancelSetConfirmation}>Continuar jogando</Button>,
+            <Button key="confirm" type="primary" onClick={confirmSet}>Confirmar set</Button>,
           ]}
           centered
+          width="min(90vw, 400px)"
           closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
         >
           <div style={{ textAlign: 'center' }}>
-            <Title level={4} style={{ color: '#01ff69' }}>
-              {currentSetWinner === 'home' ? getHomeName() : getAwayName()} venceu
-              o set {currentSet}!
+            <Title level={4} style={{ color: '#01ff69', fontSize: 'clamp(16px, 3vw, 20px)' }}>
+              {currentSetWinner === 'home' ? getHomeName() : getAwayName()} venceu o set {currentSet}!
             </Title>
-
-            <Text style={{ fontSize: 18 }}>
+            <Text style={{ fontSize: 'clamp(16px, 2.5vw, 18px)' }}>
               Placar do set: {homeScore} x {awayScore}
             </Text>
-
             <br />
-
-            <Text style={{ fontSize: 16, color: '#aaa' }}>
+            <Text style={{ fontSize: 'clamp(14px, 2vw, 16px)', color: '#aaa' }}>
               {homeSetsWon + (currentSetWinner === 'home' ? 1 : 0)} x{' '}
               {awaySetsWon + (currentSetWinner === 'away' ? 1 : 0)} em sets
             </Text>
@@ -696,22 +593,21 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           onCancel={cancelResultModal}
           footer={null}
           centered
+          width="min(90vw, 500px)"
           closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
         >
           <div style={{ textAlign: 'center' }}>
-            <Title level={3} style={{ color: '#01ff69' }}>
+            <Title level={3} style={{ color: '#01ff69', fontSize: 'clamp(18px, 4vw, 24px)' }}>
               Vencedor: {matchWinner === 'home' ? getHomeName() : getAwayName()}
             </Title>
-
             {setsToWin > 1 && (
               <>
-                <Text style={{ fontSize: 20 }}>
+                <Text style={{ fontSize: 'clamp(16px, 2.5vw, 20px)' }}>
                   Sets: {homeSetsWon} x {awaySetsWon}
                 </Text>
                 <br />
               </>
             )}
-
             <Button
               size="large"
               type="primary"
@@ -719,7 +615,12 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               loading={saving}
               style={{
                 marginTop: 24,
+                backgroundColor: '#01ff69',
+                borderColor: '#00aa09',
                 color: '#000',
+                fontWeight: 'bold',
+                height: 'clamp(40px, 8vw, 56px)',
+                fontSize: 'clamp(16px, 2.5vw, 18px)',
               }}
             >
               Salvar Resultado
@@ -732,43 +633,26 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           open={settingsVisible}
           onCancel={() => setSettingsVisible(false)}
           footer={[
-            <Button
-              key="ok"
-              type="primary"
-              onClick={() => setSettingsVisible(false)}
-            >
+            <Button key="ok" type="primary" onClick={() => setSettingsVisible(false)} style={{ backgroundColor: '#01ff69', borderColor: '#00aa09', color: '#000' }}>
               OK
             </Button>,
           ]}
+          width="min(90vw, 400px)"
           closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
         >
-          <div style={{ marginBottom: 16 }}>
-            <label>Pontos por set: </label>
-            <InputNumber
-              min={1}
-              value={editablePointsPerSet}
-              onChange={(val) => setEditablePointsPerSet(val || 1)}
-            />
+          <div style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+            <label style={{ minWidth: 130 }}>Pontos por set: </label>
+            <InputNumber min={1} value={editablePointsPerSet} onChange={(val) => setEditablePointsPerSet(val || 1)} style={{ width: '100%', maxWidth: 200 }} />
           </div>
-
           {setsToWin > 1 && (
-            <div style={{ marginBottom: 16 }}>
-              <label>Pontos no tie-break: </label>
-              <InputNumber
-                min={1}
-                value={editableTieBreakPoints}
-                onChange={(val) => setEditableTieBreakPoints(val || 1)}
-              />
+            <div style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+              <label style={{ minWidth: 130 }}>Pontos no tie-break: </label>
+              <InputNumber min={1} value={editableTieBreakPoints} onChange={(val) => setEditableTieBreakPoints(val || 1)} style={{ width: '100%', maxWidth: 200 }} />
             </div>
           )}
-
-          <div>
-            <label>Vantagem mínima: </label>
-            <InputNumber
-              min={1}
-              value={minAdvantage}
-              onChange={(val) => setMinAdvantage(val || 1)}
-            />
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+            <label style={{ minWidth: 130 }}>Vantagem mínima: </label>
+            <InputNumber min={1} value={minAdvantage} onChange={(val) => setMinAdvantage(val || 1)} style={{ width: '100%', maxWidth: 200 }} />
           </div>
         </Modal>
 
@@ -777,72 +661,27 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           open={woModalVisible}
           onCancel={() => setWoModalVisible(false)}
           footer={[
-            <Button key="cancel" onClick={() => setWoModalVisible(false)}>
-              Cancelar
-            </Button>,
-            <Button
-              key="submit"
-              type="primary"
-              danger
-              onClick={handleRegisterWO}
-              loading={saving}
-            >
-              Confirmar WO
-            </Button>,
+            <Button key="cancel" onClick={() => setWoModalVisible(false)}>Cancelar</Button>,
+            <Button key="submit" type="primary" danger onClick={handleRegisterWO} loading={saving}>Confirmar WO</Button>,
           ]}
+          width="min(90vw, 450px)"
           closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
           centered
         >
           <div style={{ marginBottom: 16 }}>
-            <Text>
-              Selecione o time que <strong>compareceu</strong> e vencerá por WO:
-            </Text>
+            <Text>Selecione o time que <strong>compareceu</strong> e vencerá por WO:</Text>
           </div>
-
-          <Radio.Group
-            onChange={(e) => setSelectedWoWinner(e.target.value)}
-            value={selectedWoWinner}
-            style={{ width: '100%' }}
-          >
-            <Space direction="vertical" style={{ width: '100%' }}>
+          <Radio.Group onChange={(e) => setSelectedWoWinner(e.target.value)} value={selectedWoWinner} style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               <Radio value="home">{getHomeName()} (mandante)</Radio>
               <Radio value="away">{getAwayName()} (visitante)</Radio>
             </Space>
           </Radio.Group>
-
           <div style={{ marginTop: 16, fontSize: 12, color: '#666' }}>
-            O time vencedor receberá {setsToWin} sets de WO e 3 pontos na
-            classificação.
+            O time vencedor receberá {setsToWin} sets de WO e 3 pontos na classificação.
           </div>
         </Modal>
       </div>
     </Modal>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  title: {
-    fontSize: 50,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  players: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    lineHeight: 1.2,
-  },
-  score: {
-    fontSize: 280,
-    color: '#01ff69',
-    fontWeight: 'bold',
-    lineHeight: 1,
-  },
-  incrementButton: {
-    backgroundColor: '#01ff69',
-    borderColor: '#00aa09',
-  },
-  decrementButton: {
-    backgroundColor: '#ff4d4f',
-    borderColor: '#aa0000',
-  },
 };

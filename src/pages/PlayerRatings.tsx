@@ -55,7 +55,7 @@ export default function PlayerRatings() {
   }
 
   return (
-    <Space direction="vertical" style={{ width: "100%" }} size={16}>
+    <Space orientation="vertical" style={{ width: "100%" }} size={16}>
       <Card title={`Ratings do jogador: ${playerId}`}>
         <AppButton tone="generate" onClick={saveAll} loading={saving} disabled={loading}>
           Salvar

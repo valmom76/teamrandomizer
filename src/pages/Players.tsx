@@ -170,12 +170,12 @@ export default function Players() {
 
   const columns = useMemo(
     () => [
-      { title: "Nome", dataIndex: "name", width: 200 },
-      { title: "Sexo", dataIndex: "sex", width: 80 },
+      { title: "Nome", dataIndex: "name", width: 180, ellipsis: true },
+      { title: "Sexo", dataIndex: "sex", width: 70, align: "center" as const },
       {
         title: "Posição",
         key: "position",
-        width: 150,
+        width: 130,
         render: (_: any, p: Player) => {
           if (!p.positions || p.positions.length === 0) return <Tag>—</Tag>;
           const main = p.positions.sort((a, b) => a.priority - b.priority)[0];
@@ -185,39 +185,43 @@ export default function Players() {
       {
         title: "Média Rating",
         key: "avg",
-        width: 120,
+        width: 110,
+        align: "center" as const,
         render: (_: any, p: Player) => {
-          if (p.overall == null) return <Tag color="default">Sem rating</Tag>;
+          if (p.overall == null) return <Tag color="default">—</Tag>;
           return <span style={{ fontWeight: 900 }}>{p.overall.toFixed(1)}</span>;
         },
       },
       {
         title: "Ações",
-        width: 220,
+        key: "actions",
+        width: 240,
         render: (_: any, p: Player) => (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <AppButton tone="copy" onClick={() => openRatings(p)} style={{ width: 80, height: 32, lineHeight: "32px", padding: 0, transition: "none" }}>
+          <Space size={[4, 4]} wrap>
+            <AppButton tone="copy" onClick={() => openRatings(p)} style={{ height: 32, lineHeight: "32px", padding: "0 8px", fontSize: 13 }}>
               Ratings
             </AppButton>
-            <AppButton tone="save" onClick={() => openEdit(p)} style={{ width: 70, height: 32, lineHeight: "32px", padding: 0, transition: "none" }}>
+            <AppButton tone="save" onClick={() => openEdit(p)} style={{ height: 32, lineHeight: "32px", padding: "0 8px", fontSize: 13 }}>
               Editar
             </AppButton>
             <Popconfirm title="Excluir jogador?" description="Esta ação é irreversível." onConfirm={() => handleDelete(p.id)} okText="Sim" cancelText="Cancelar">
-              <AppButton tone="reset" style={{ width: 70, height: 32, lineHeight: "32px", padding: 0, transition: "none" }}>
+              <AppButton tone="reset" style={{ height: 32, lineHeight: "32px", padding: "0 8px", fontSize: 13 }}>
                 Excluir
               </AppButton>
             </Popconfirm>
-          </div>
+          </Space>
         ),
       },
     ],
     []
   );
 
+  const cardBodyStyle = { padding: 'clamp(12px, 3vw, 24px)' };
+
   return (
-    <>
-      <Space direction="vertical" style={{ width: "100%" }} size={16}>
-        <Card title="Novo Jogador">
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 1400, margin: '0 auto' }}>
+      <Space orientation="vertical" style={{ width: "100%" }} size={16}>
+        <Card title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)' }}>Novo Jogador</span>} styles={{ body: cardBodyStyle }}>
           <Form
             layout="vertical"
             onFinish={handleCreate}
@@ -340,8 +344,19 @@ export default function Players() {
           </Form>
         </Card>
 
-        <Card title="Jogadores" extra={<AppButton tone="save" onClick={refresh} disabled={loading}>Recarregar</AppButton>}>
-          <Table rowKey="id" loading={loading} dataSource={items} columns={columns as any} />
+        <Card
+          title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)' }}>Jogadores</span>}
+          extra={<AppButton tone="save" onClick={refresh} disabled={loading} style={{ fontSize: 13 }}>Recarregar</AppButton>}
+          styles={{ body: cardBodyStyle }}
+        >
+          <Table
+            rowKey="id"
+            loading={loading}
+            dataSource={items}
+            columns={columns as any}
+            scroll={{ x: 'max-content' }}
+            pagination={{ responsive: true, pageSize: 10, showSizeChanger: false }}
+          />
         </Card>
       </Space>
 
@@ -352,6 +367,7 @@ export default function Players() {
         onOk={handleUpdate}
         okText="Salvar"
         cancelText="Cancelar"
+        width="min(90vw, 500px)"
         closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
       >
         <Form form={editForm} layout="vertical">
@@ -371,7 +387,7 @@ export default function Players() {
             <Input value={formatPhone(editRawPhone)} onChange={handleEditPhoneChange} placeholder="(99) 99999-9999" />
           </Form.Item>
           <Form.Item name="birthDate" label="Nascimento">
-            <DatePicker format="DD/MM/YYYY" />
+            <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="Posições">
             <Select mode="multiple" placeholder="Selecione" value={editPlayerPositions.map(p => p.positionId)} onChange={handleEditPositionChange} style={{ width: "100%" }}>
@@ -382,7 +398,7 @@ export default function Players() {
             const posName = positionsList.find(p => p.id === pos.positionId)?.name || pos.positionId;
             return (
               <Form.Item key={pos.positionId} label={`Prioridade ${posName}`}>
-                <InputNumber min={1} value={pos.priority} onChange={(val) => setEditPlayerPositions(prev => prev.map(p => p.positionId === pos.positionId ? { ...p, priority: val || 1 } : p))} style={{ width: 80 }} />
+                <InputNumber min={1} value={pos.priority} onChange={(val) => setEditPlayerPositions(prev => prev.map(p => p.positionId === pos.positionId ? { ...p, priority: val || 1 } : p))} style={{ width: "100%" }} />
               </Form.Item>
             );
           })}
@@ -395,9 +411,9 @@ export default function Players() {
         playerName={ratingsPlayerName}
         onClose={closeRatings}
         onSaved={async () => {
-          if (ratingsPlayerId) await refresh(); // recarrega todos (simples)
+          if (ratingsPlayerId) await refresh();
         }}
       />
-    </>
+    </div>
   );
 }

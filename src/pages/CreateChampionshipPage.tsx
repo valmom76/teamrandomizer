@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Radio, InputNumber, message } from 'antd';
+import { Form, Input, Select, Button, Radio, InputNumber, message, Card, Row, Col } from 'antd';
 import { http } from '../api/http';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -12,7 +12,6 @@ const CreateChampionshipPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Carregar sessões de geração
     http.get('/team-generation/sessions').then(res => setSessions(res.data));
   }, []);
 
@@ -34,40 +33,110 @@ const CreateChampionshipPage: React.FC = () => {
   };
 
   return (
-    <Form form={form} onFinish={onFinish} layout="vertical">
-      <Form.Item name="name" label="Nome do Campeonato" rules={[{ required: true }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item label="Sessão de Times" required>
-        <Select value={selectedSession} onChange={setSelectedSession}>
-          {sessions.map((s: any) => (
-            <Select.Option key={s.sessionId} value={s.sessionId}>
-              {new Date(s.createdAt).toLocaleDateString()}
-            </Select.Option>
-          ))}
-        </Select>
-      </Form.Item>
-      <Form.Item name="format" label="Formato" initialValue="GROUPS" rules={[{ required: true }]}>
-        <Radio.Group>
-          <Radio value="GROUPS">Fase de Grupos + Eliminatórias</Radio>
-          <Radio value="KNOCKOUT">Eliminatórias Diretas</Radio>
-          <Radio value="LEAGUE">Pontos Corridos</Radio>
-        </Radio.Group>
-      </Form.Item>
-      <Form.Item name="groupsCount" label="Número de Grupos" initialValue={2}>
-        <InputNumber min={1} />
-      </Form.Item>
-      <Form.Item name="qualifiedPerGroup" label="Classificados por Grupo" initialValue={2}>
-        <InputNumber min={1} />
-      </Form.Item>
-      <Form.Item name="matchesType" label="Tipo de Partidas" initialValue="SINGLE">
-        <Radio.Group>
-          <Radio value="SINGLE">Somente Ida</Radio>
-          <Radio value="HOME_AND_AWAY">Ida e Volta</Radio>
-        </Radio.Group>
-      </Form.Item>
-      <Button type="primary" htmlType="submit">Criar Campeonato</Button>
-    </Form>
+    <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 800, margin: '0 auto' }}>
+      <Card
+        title={<span style={{ fontSize: 'clamp(18px, 3vw, 24px)', color: '#01ff69', fontWeight: 'bold' }}>🏆 Criar Campeonato</span>}
+        style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: 8 }}
+        styles={{ body: { padding: 'clamp(16px, 3vw, 24px)' } }}
+      >
+        <Form
+          form={form}
+          onFinish={onFinish}
+          layout="vertical"
+          initialValues={{
+            format: 'GROUPS',
+            groupsCount: 2,
+            qualifiedPerGroup: 2,
+            matchesType: 'SINGLE',
+          }}
+        >
+          <Row gutter={[16, 8]}>
+            <Col xs={24}>
+              <Form.Item
+                name="name"
+                label="Nome do Campeonato"
+                rules={[{ required: true, message: 'Informe o nome do campeonato' }]}
+              >
+                <Input placeholder="Ex: Copa Primavera 2026" />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} sm={12}>
+              <Form.Item label="Sessão de Times" required>
+                <Select
+                  value={selectedSession}
+                  onChange={setSelectedSession}
+                  placeholder="Selecione uma sessão"
+                  style={{ width: '100%' }}
+                >
+                  {sessions.map((s: any) => (
+                    <Select.Option key={s.sessionId} value={s.sessionId}>
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24}>
+              <Form.Item
+                name="format"
+                label="Formato"
+                rules={[{ required: true }]}
+              >
+                <Radio.Group style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <Radio value="GROUPS">Fase de Grupos + Eliminatórias</Radio>
+                  <Radio value="KNOCKOUT">Eliminatórias Diretas</Radio>
+                  <Radio value="LEAGUE">Pontos Corridos</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Col>
+
+            <Col xs={12} sm={12} md={8}>
+              <Form.Item name="groupsCount" label="Nº de Grupos">
+                <InputNumber min={1} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+
+            <Col xs={12} sm={12} md={8}>
+              <Form.Item name="qualifiedPerGroup" label="Classificados por Grupo">
+                <InputNumber min={1} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} sm={24} md={8}>
+              <Form.Item name="matchesType" label="Tipo de Partidas">
+                <Radio.Group>
+                  <Radio value="SINGLE">Ida</Radio>
+                  <Radio value="HOME_AND_AWAY">Ida e Volta</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24}>
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  block
+                  style={{
+                    backgroundColor: '#01ff69',
+                    borderColor: '#01ff69',
+                    color: '#1a1a1a',
+                    fontWeight: 'bold',
+                    height: 48,
+                    fontSize: 'clamp(16px, 2vw, 18px)',
+                  }}
+                >
+                  Criar Campeonato
+                </Button>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Card>
+    </div>
   );
 };
 

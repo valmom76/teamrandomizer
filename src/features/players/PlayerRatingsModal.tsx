@@ -83,7 +83,7 @@ export default function PlayerRatingsModal({
       destroyOnClose
       closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
     >
-      <Space direction="vertical" style={{ width: "100%" }} size={12}>
+      <Space orientation="vertical" style={{ width: "100%" }} size={12}>
         <Card
           size="small"
           style={{ background: "var(--surface)", borderColor: "var(--border)" }}
