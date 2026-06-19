@@ -12,6 +12,7 @@ import {
   EditOutlined,
   BarChartOutlined,
   MenuOutlined,
+  WhatsAppOutlined
 } from "@ant-design/icons";
 import { FaVolleyballBall } from "@react-icons/all-files/fa/FaVolleyballBall";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -98,49 +99,98 @@ export default function Nav({ collapsed, onToggle }: NavProps) {
   // ─── DESKTOP: Sider fixa ───
   if (!isMobile) {
     return (
-      <Sider
-        width={220}
-        collapsedWidth={72}
-        collapsed={collapsed}
-        trigger={null}
-        className="nav-sider"
+<Sider
+  width={220}
+  collapsedWidth={72}
+  collapsed={collapsed}
+  trigger={null}
+  className="nav-sider"
+  style={{
+    position: "fixed",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    height: "100vh",
+    overflow: "hidden",
+    zIndex: 10,
+    display: "flex",
+    flexDirection: "column",
+  }}
+>
+  {/* BRAND */}
+  <div className={`nav-brand ${collapsed ? "collapsed" : ""}`}>
+    <img src={logoSrc} alt="Logo" className="nav-logo" />
+    {!collapsed && (
+      <div className="nav-brand-text">
+        <div className="nav-title">R4NDO</div>
+        <div className="nav-subtitle">{groupName.toUpperCase()}</div>
+      </div>
+    )}
+  </div>
+
+  {/* MENU - com padding inferior para não sobrepor o footer */}
+  <Menu
+    className="nav-menu"
+    mode="inline"
+    inlineCollapsed={collapsed}
+    selectedKeys={[selectedKey]}
+    items={menuItems}
+    onClick={(e) => handleMenuClick(String(e.key))}
+    style={{ flex: 1, overflow: "auto", paddingBottom: collapsed ? 5 : 10 }}
+  />
+
+    {/* Botão de recolher/expandir */}
+    <Tooltip title={collapsed ? "Expandir menu" : "Recolher menu"} placement="right">
+      <button
+        type="button"
+        className="action-btn-compact generate nav-toggle-btn"
+        onClick={onToggle}
+        aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+        style={{alignContent: 'center', justifyContent: 'center', margin: '8px auto'}}
+      >
+        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+      </button>
+    </Tooltip>
+  {/* FOOTER FIXO NA BASE */}
+  <div
+    style={{
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+      padding: "12px 16px",
+    }}
+  >
+    {/* WhatsApp */}
+    <Tooltip title="Suporte WhatsApp" placement="right">
+      <a
+        href="https://wa.me/5598984733608?text=Olá! Preciso de ajuda com o R4NDO"
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          height: "100vh",
-          overflow: "auto",
-          zIndex: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          padding: "8px 12px",
+          borderRadius: 6,
+          backgroundColor: "#01FF69",
+          color: "#000",
+          fontWeight: "bold",
+          textDecoration: "none",
+          fontSize: 14,
+          textAlign: "center",
         }}
       >
-        {/* BRAND */}
-        <div className={`nav-brand ${collapsed ? "collapsed" : ""}`}>
-          <img src={logoSrc} alt="Logo" className="nav-logo" />
-          {!collapsed && (
-            <div className="nav-brand-text">
-              <div className="nav-title">R4NDO</div>
-              <div className="nav-subtitle">{groupName.toUpperCase()}</div>
-            </div>
-          )}
-        </div>
-
-        {/* MENU */}
-        {renderMenu("inline", collapsed)}
-
-        <div className="nav-footer">
-          <Tooltip title={collapsed ? "Expandir menu" : "Recolher menu"} placement="right">
-            <button
-              type="button"
-              className="action-btn-compact generate nav-toggle-btn"
-              onClick={onToggle}
-              aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
-            >
-              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </button>
-          </Tooltip>
-        </div>
-      </Sider>
+        <WhatsAppOutlined style={{ fontSize: 18 }} />
+        {!collapsed && <span>Suporte</span>}
+      </a>
+    </Tooltip>
+  </div>
+</Sider>
     );
   }
 

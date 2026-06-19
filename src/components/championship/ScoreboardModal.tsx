@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
   Button,
@@ -6,8 +6,6 @@ import {
   Space,
   Typography,
   message,
-  Row,
-  Col,
   Card,
   Tooltip,
   Radio,
@@ -20,8 +18,6 @@ import {
   WarningOutlined,
   CloseOutlined,
   SwapOutlined,
-  FullscreenOutlined,
-  FullscreenExitOutlined,
 } from '@ant-design/icons';
 import { http } from '../../api/http';
 import type { Team } from '../types';
@@ -51,6 +47,9 @@ interface SetResult {
   awayScore: number;
 }
 
+type TeamSide = 'home' | 'away';
+type BoardSide = 'left' | 'right';
+
 export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   visible,
   onClose,
@@ -67,32 +66,29 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   pointsPerSet: initialPointsPerSet = 25,
   tieBreakPoints: initialTieBreakPoints = 15,
 }) => {
-  const [isCompact, setIsCompact] = useState(
-    () => window.innerHeight < window.innerWidth && window.innerHeight < 500
+  const isMobileByUserAgent = () =>
+    /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
+
+  const [isPortrait, setIsPortrait] = useState(
+    () => window.innerHeight > window.innerWidth
   );
-  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const [isMobileDevice, setIsMobileDevice] = useState(
+    () => isMobileByUserAgent() || window.innerWidth < 1024
+  );
 
   useEffect(() => {
     const handleResize = () => {
-      setIsCompact(window.innerHeight < window.innerWidth && window.innerHeight < 500);
+      setIsPortrait(window.innerHeight > window.innerWidth);
+      setIsMobileDevice(isMobileByUserAgent() || window.innerWidth < 1024);
     };
+
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
+
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
     };
   }, []);
 
@@ -113,9 +109,9 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   const [homeSetsWon, setHomeSetsWon] = useState(0);
   const [awaySetsWon, setAwaySetsWon] = useState(0);
 
-  const [matchWinner, setMatchWinner] = useState<'home' | 'away' | null>(null);
+  const [matchWinner, setMatchWinner] = useState<TeamSide | null>(null);
   const [, setSetFinished] = useState(false);
-  const [currentSetWinner, setCurrentSetWinner] = useState<'home' | 'away' | null>(null);
+  const [currentSetWinner, setCurrentSetWinner] = useState<TeamSide | null>(null);
   const [confirmSetModalOpen, setConfirmSetModalOpen] = useState(false);
   const [resultModalVisible, setResultModalVisible] = useState(false);
 
@@ -130,6 +126,14 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
   const [swapped, setSwapped] = useState(false);
   const [dragOverLeft, setDragOverLeft] = useState(false);
   const [dragOverRight, setDragOverRight] = useState(false);
+
+  const scoreDragRef = useRef<{ y: number; team: TeamSide } | null>(null);
+
+  const shouldStackScores = isMobileDevice && isPortrait;
+  const shouldUseCompactCard = isMobileDevice || isPortrait;
+
+  const middleButtonSize = shouldStackScores ? 38 : isMobileDevice ? 34 : 40;
+  const scoreButtonSize = shouldStackScores ? 44 : isMobileDevice ? 42 : 56;
 
   const targetPoints = useMemo(() => {
     if (setsToWin === 1) return editablePointsPerSet;
@@ -148,7 +152,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
     const reachedTarget = homeScore >= targetPoints || awayScore >= targetPoints;
     const hasAdvantage = Math.abs(homeScore - awayScore) >= minAdvantage;
     if (!reachedTarget || !hasAdvantage) return null;
-    const winner: 'home' | 'away' = homeScore > awayScore ? 'home' : 'away';
+    const winner: TeamSide = homeScore > awayScore ? 'home' : 'away';
     return {
       winner,
       key: `${currentSet}-${homeScore}-${awayScore}-${winner}-${targetPoints}-${homeSetsWon}-${awaySetsWon}`,
@@ -181,8 +185,8 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       http.get(`/teams/session/${generationSessionId}`)
         .then((res) => {
           const teams: Team[] = res.data;
-          setHomeTeam(teams.find((t) => t.teamIndex === homeTeamIndex) || null);
-          setAwayTeam(teams.find((t) => t.teamIndex === awayTeamIndex) || null);
+          setHomeTeam(teams.find((team) => team.teamIndex === homeTeamIndex) || null);
+          setAwayTeam(teams.find((team) => team.teamIndex === awayTeamIndex) || null);
         })
         .catch(() => message.error('Erro ao carregar times'))
         .finally(() => setLoading(false));
@@ -193,10 +197,10 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
     if (championshipId && matchId) {
       http.get(`/championships/${championshipId}/matches/${matchId}`)
         .then((res) => {
-          const m = res.data;
-          if (m.setsToWin) setSetsToWin(m.setsToWin);
-          if (m.pointsPerSet) setEditablePointsPerSet(m.pointsPerSet);
-          if (m.tieBreakPoints) setEditableTieBreakPoints(m.tieBreakPoints);
+          const match = res.data;
+          if (match.setsToWin) setSetsToWin(match.setsToWin);
+          if (match.pointsPerSet) setEditablePointsPerSet(match.pointsPerSet);
+          if (match.tieBreakPoints) setEditableTieBreakPoints(match.tieBreakPoints);
         })
         .catch(() => console.warn('Não foi possível carregar detalhes da partida'));
     }
@@ -258,13 +262,13 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
     setCurrentSetWinner(null);
   };
 
-  const increment = (team: 'home' | 'away') => {
+  const increment = (team: TeamSide) => {
     if (finishInfo) return;
     if (team === 'home') setHomeScore((prev) => prev + 1);
     else setAwayScore((prev) => prev + 1);
   };
 
-  const decrement = (team: 'home' | 'away') => {
+  const decrement = (team: TeamSide) => {
     if (team === 'home' && homeScore > 0) setHomeScore((prev) => prev - 1);
     else if (team === 'away' && awayScore > 0) setAwayScore((prev) => prev - 1);
   };
@@ -275,9 +279,17 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
     try {
       const finalSets = setsToWin === 1 ? [{ setNumber: 1, homeScore, awayScore }] : sets;
       if (onSave) {
-        await onSave({ walkover: false, winnerTeamIndex: matchWinner === 'home' ? homeTeamIndex : awayTeamIndex, sets: finalSets });
+        await onSave({
+          walkover: false,
+          winnerTeamIndex: matchWinner === 'home' ? homeTeamIndex : awayTeamIndex,
+          sets: finalSets,
+        });
       } else {
-        await http.post(`/championships/${championshipId}/matches/result`, { matchId, walkover: false, sets: finalSets });
+        await http.post(`/championships/${championshipId}/matches/result`, {
+          matchId,
+          walkover: false,
+          sets: finalSets,
+        });
       }
       message.success('Resultado registrado com sucesso!');
       onSuccess();
@@ -316,63 +328,174 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
     }
   };
 
-  const handleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if ((elem as any).webkitRequestFullscreen) {
-        (elem as any).webkitRequestFullscreen();
-      }
-      setIsFullscreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen();
-      }
-      setIsFullscreen(false);
-    }
-  };
-
   const getHomeName = () => homeTeamName || `Time ${homeTeamIndex}`;
   const getAwayName = () => awayTeamName || `Time ${awayTeamIndex}`;
 
-  const handleDragStart = (e: React.DragEvent, side: 'left' | 'right') => {
+  const handleDragStart = (e: React.DragEvent, side: BoardSide) => {
     e.dataTransfer.setData('text/plain', side);
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e: React.DragEvent, side: 'left' | 'right') => {
+  const handleDragOver = (e: React.DragEvent, side: BoardSide) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     if (side === 'left') setDragOverLeft(true);
     else setDragOverRight(true);
   };
 
-  const handleDragLeave = (side: 'left' | 'right') => {
+  const handleDragLeave = (side: BoardSide) => {
     if (side === 'left') setDragOverLeft(false);
     else setDragOverRight(false);
   };
 
-  const handleDrop = (e: React.DragEvent, targetSide: 'left' | 'right') => {
+  const handleDrop = (e: React.DragEvent, targetSide: BoardSide) => {
     e.preventDefault();
     setDragOverLeft(false);
     setDragOverRight(false);
-    const sourceSide = e.dataTransfer.getData('text/plain') as 'left' | 'right';
+    const sourceSide = e.dataTransfer.getData('text/plain') as BoardSide;
     if (sourceSide !== targetSide) setSwapped((prev) => !prev);
   };
 
-  const leftTeam = swapped ? 'away' : 'home';
-  const rightTeam = swapped ? 'home' : 'away';
+  const leftTeam: TeamSide = swapped ? 'away' : 'home';
+  const rightTeam: TeamSide = swapped ? 'home' : 'away';
 
-  const renderTeamCard = (side: 'left' | 'right') => {
+  const renderMiddleControls = () => {
+    const controlsDirection = shouldStackScores ? 'row' : 'column';
+
+    return (
+      <div
+        style={{
+          height: '100%',
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: controlsDirection,
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: shouldStackScores ? 8 : 10,
+          padding: shouldStackScores ? '8px 0' : '0 4px',
+          zIndex: 2,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: controlsDirection,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+          }}
+        >
+          <Tooltip title="Fechar placar">
+            <Button
+              shape="circle"
+              size={isMobileDevice ? 'middle' : 'large'}
+              icon={<CloseOutlined />}
+              onClick={onClose}
+              style={{
+                backgroundColor: '#1f1f1f',
+                borderColor: '#01ff69',
+                color: '#01ff69',
+                fontWeight: 'bold',
+                width: middleButtonSize,
+                height: middleButtonSize,
+                minWidth: middleButtonSize,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: shouldStackScores ? 5 : 15,
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="Inverter lados">
+            <Button
+              shape="circle"
+              size={isMobileDevice ? 'middle' : 'large'}
+              icon={<SwapOutlined />}
+              onClick={() => setSwapped((prev) => !prev)}
+              style={{
+                backgroundColor: '#333',
+                borderColor: '#01ff69',
+                color: '#01ff69',
+                fontWeight: 'bold',
+                fontSize: 16,
+                width: middleButtonSize,
+                height: middleButtonSize,
+                minWidth: middleButtonSize,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: shouldStackScores ? 5 : 15,
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="Configurar regras">
+            <Button
+              shape="circle"
+              size="small"
+              icon={<SettingOutlined />}
+              onClick={() => setSettingsVisible(true)}
+              style={{
+                backgroundColor: '#333',
+                borderColor: '#666',
+                color: '#aaa',
+                width: middleButtonSize,
+                height: middleButtonSize,
+                minWidth: middleButtonSize,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: shouldStackScores ? 5 : 15,
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="Registrar WO">
+            <Button
+              shape="circle"
+              size="small"
+              icon={<WarningOutlined />}
+              onClick={() => setWoModalVisible(true)}
+              danger
+              style={{
+                width: middleButtonSize,
+                height: middleButtonSize,
+                minWidth: middleButtonSize,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+          </Tooltip>
+
+          {setsToWin > 1 && (
+            <Tag
+              color="blue"
+              style={{
+                fontSize: 12,
+                padding: '2px 6px',
+                textAlign: 'center',
+                margin: 0,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {homeSetsWon} x {awaySetsWon}
+            </Tag>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderTeamCard = (side: BoardSide) => {
     const teamKey = side === 'left' ? leftTeam : rightTeam;
     const isHome = teamKey === 'home';
     const team = isHome ? homeTeam : awayTeam;
     const score = isHome ? homeScore : awayScore;
     const teamName = isHome ? getHomeName() : getAwayName();
     const dragOver = side === 'left' ? dragOverLeft : dragOverRight;
+    const teamType: TeamSide = isHome ? 'home' : 'away';
 
     return (
       <div
@@ -388,50 +511,80 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           borderRadius: 12,
           transition: 'opacity 0.2s, border 0.2s',
           height: '100%',
+          minHeight: 0,
         }}
       >
         <Card
           variant="borderless"
           style={{
             backgroundColor: '#1a1a1a',
-            padding: isCompact ? '8px' : 'clamp(8px, 2vw, 16px)',
+            padding: shouldUseCompactCard ? 8 : 'clamp(8px, 2vw, 16px)',
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
           }}
-          styles={{ body: { padding: isCompact ? '8px' : 'clamp(8px, 2vw, 16px)', flex: 1, display: 'flex', flexDirection: 'column' } }}
+          styles={{
+            body: {
+              padding: shouldUseCompactCard ? 8 : 'clamp(8px, 2vw, 16px)',
+              flex: 1,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+            },
+          }}
         >
-          {/* Linha 1: [ - ] Nome | Sets | [ + ] */}
+          {/* Linha: [ - ] Nome (Sets) [ + ] */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: isCompact ? 'clamp(4px, 2vw, 8px)' : 'clamp(12px, 2vw, 24px)',
+              gap: isMobileDevice ? 6 : 12,
               flexShrink: 0,
+              marginBottom: shouldUseCompactCard ? 4 : 0,
             }}
           >
-            <Button
-              size={isCompact ? 'large' : 'large'}
-              icon={<MinusOutlined />}
-              onClick={() => decrement(isHome ? 'home' : 'away')}
-              style={{
-                backgroundColor: '#ff4d4f',
-                borderColor: '#aa0000',
-                color: '#fff',
-                fontWeight: 'bold',
-                height: isCompact ? 'clamp(44px, 15vh, 60px)' : 'clamp(40px, 8vw, 56px)',
-                width: isCompact ? 'clamp(44px, 15vh, 60px)' : 'clamp(50px, 10vw, 80px)',
-                fontSize: isCompact ? 'clamp(24px, 8vh, 32px)' : 'clamp(18px, 3vw, 24px)',
-                flexShrink: 0,
-              }}
-            />
+            {!isMobileDevice && (
+              <Button
+                size="large"
+                icon={<MinusOutlined />}
+                onClick={() => decrement(teamType)}
+                style={{
+                  backgroundColor: '#ff4d4f',
+                  borderColor: '#aa0000',
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  height: scoreButtonSize,
+                  width: scoreButtonSize,
+                  minWidth: scoreButtonSize,
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 20,
+                  flexShrink: 0,
+                }}
+              />
+            )}
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                flex: 1,
+                minWidth: 0,
+              }}
+            >
               <Title
                 level={3}
                 style={{
-                  fontSize: isCompact ? 'clamp(14px, 3vh, 24px)' : 'clamp(20px, 5vw, 50px)',
+                  fontSize: shouldStackScores
+                    ? 'clamp(11px, 2.5vh, 16px)'
+                    : isMobileDevice
+                      ? 'clamp(14px, 3vw, 22px)'
+                      : 'clamp(20px, 5vw, 50px)',
                   fontWeight: 'bold',
                   color: '#fff',
                   textAlign: 'center',
@@ -448,9 +601,14 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               {setsToWin > 1 && (
                 <span
                   style={{
-                    fontSize: isCompact ? 'clamp(14px, 3vh, 24px)' : 'clamp(20px, 5vw, 50px)',
+                    fontSize: shouldStackScores
+                      ? 'clamp(11px, 2.5vh, 16px)'
+                      : isMobileDevice
+                        ? 'clamp(14px, 3vw, 22px)'
+                        : 'clamp(20px, 5vw, 50px)',
                     fontWeight: 'bold',
                     color: '#01ff69',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   ({isHome ? homeSetsWon : awaySetsWon})
@@ -458,26 +616,33 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
               )}
             </div>
 
-            <Button
-              size={isCompact ? 'large' : 'large'}
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => increment(isHome ? 'home' : 'away')}
-              style={{
-                backgroundColor: '#01ff69',
-                borderColor: '#00aa09',
-                color: '#000',
-                fontWeight: 'bold',
-                height: isCompact ? 'clamp(44px, 15vh, 60px)' : 'clamp(40px, 8vw, 56px)',
-                width: isCompact ? 'clamp(44px, 15vh, 60px)' : 'clamp(50px, 10vw, 80px)',
-                fontSize: isCompact ? 'clamp(24px, 8vh, 32px)' : 'clamp(18px, 3vw, 24px)',
-                flexShrink: 0,
-              }}
-            />
+            {!isMobileDevice && (
+              <Button
+                size="large"
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => increment(teamType)}
+                style={{
+                  backgroundColor: '#01ff69',
+                  borderColor: '#00aa09',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  height: scoreButtonSize,
+                  width: scoreButtonSize,
+                  minWidth: scoreButtonSize,
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 20,
+                  flexShrink: 0,
+                }}
+              />
+            )}
           </div>
 
-          {/* Lista de jogadores (apenas desktop) */}
-          {team && !isCompact && (
+          {/* Jogadores (apenas desktop) */}
+          {team && !isMobileDevice && (
             <div
               style={{
                 marginTop: 4,
@@ -488,9 +653,9 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
                 flexShrink: 0,
               }}
             >
-              {team.players.map((p, idx) => (
+              {team.players.map((player, index) => (
                 <span
-                  key={p.id}
+                  key={player.id}
                   style={{
                     fontSize: 'clamp(12px, 2.5vw, 25px)',
                     fontWeight: 'bold',
@@ -498,8 +663,8 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
                     lineHeight: 1.2,
                   }}
                 >
-                  {p.name}
-                  {idx < team.players.length - 1 && ' | '}
+                  {player.name}
+                  {index < team.players.length - 1 && ' | '}
                 </span>
               ))}
             </div>
@@ -509,6 +674,7 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           <div
             style={{
               flex: 1,
+              minHeight: 0,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -516,14 +682,43 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           >
             <div
               style={{
-                fontSize: isCompact
-                  ? 'clamp(100px, 45vh, 250px)'
-                  : 'clamp(80px, 25vw, 350px)',
+                fontSize: shouldStackScores
+                  ? 'clamp(60px, 20vh, 150px)'
+                  : isMobileDevice
+                    ? 'clamp(80px, 50vw, 180px)'
+                    : 'clamp(80px, 25vw, 500px)',
                 color: '#01ff69',
                 fontWeight: 'bold',
                 lineHeight: 1,
                 textAlign: 'center',
+                cursor: 'pointer',
+                userSelect: 'none',
+                touchAction: 'none',
               }}
+              onClick={() => increment(teamType)}
+              onMouseDown={(e) => {
+                scoreDragRef.current = { y: e.clientY, team: teamType };
+              }}
+              onMouseUp={(e) => {
+                if (!scoreDragRef.current) return;
+                const deltaY = e.clientY - scoreDragRef.current.y;
+                const team = scoreDragRef.current.team;
+                if (deltaY > 20) decrement(team);
+                scoreDragRef.current = null;
+              }}
+              onTouchStart={(e) => {
+                const touch = e.touches[0];
+                scoreDragRef.current = { y: touch.clientY, team: teamType };
+              }}
+              onTouchEnd={(e) => {
+                if (!scoreDragRef.current) return;
+                const touch = e.changedTouches[0];
+                const deltaY = touch.clientY - scoreDragRef.current.y;
+                const team = scoreDragRef.current.team;
+                if (deltaY > 20) decrement(team);
+                scoreDragRef.current = null;
+              }}
+              title={isMobileDevice ? 'Toque +1 | Arraste ↓ -1' : 'Clique +1 | Arraste para baixo -1'}
             >
               {score}
             </div>
@@ -539,11 +734,12 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       open={visible}
       onCancel={onClose}
       footer={null}
+      closable={false}
       width="100vw"
       style={{
         top: 0,
         maxWidth: '100vw',
-        height: '100vh',
+        height: '100dvh',
         padding: 0,
         overflow: 'hidden',
         position: 'fixed',
@@ -553,9 +749,12 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
       }}
       styles={{
         body: {
-          height: '100vh',
-          padding: 'clamp(8px, 2vw, 16px)',
-          overflow: 'auto',
+          height: '100dvh',
+          boxSizing: 'border-box',
+          padding: shouldStackScores
+            ? 'clamp(8px, 1.5vw, 16px) clamp(4px, 1.5vw, 16px) calc(20px + env(safe-area-inset-bottom))'
+            : 'clamp(4px, 1.5vw, 16px) clamp(4px, 1.5vw, 16px) calc(20px + env(safe-area-inset-bottom))',
+          overflow: shouldStackScores ? 'auto' : 'hidden',
           position: 'relative',
         },
         mask: {
@@ -570,98 +769,55 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           overflow: 'hidden',
         },
       }}
-      closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
     >
-      <div style={{ position: 'relative', minHeight: '100%' }}>
-        <img
-          src="/logo_minimal_light.svg"
-          alt="BoraVer"
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 'clamp(120px, 30vw, 240px)',
-            height: 'auto',
-            opacity: 0.1,
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
-
+      <div
+        style={{
+          position: 'relative',
+          minHeight: '100%',
+          height: shouldStackScores ? 'auto' : '100%',
+        }}
+      >
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 20, fontSize: 'clamp(20px, 5vw, 40px)', color: '#aaa' }}>
+          <div
+            style={{
+              textAlign: 'center',
+              padding: 20,
+              fontSize: 'clamp(20px, 5vw, 40px)',
+              color: '#aaa',
+            }}
+          >
             Carregando times...
           </div>
         ) : (
-          <>
-            <div
-              style={{
-                textAlign: 'left',
-                marginBottom: 16,
-                position: 'relative',
-                zIndex: 1,
-                display: 'flex',
-                gap: 8,
-                alignItems: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              <Tooltip title="Configurar regras">
-                <Button icon={<SettingOutlined />} onClick={() => setSettingsVisible(true)} />
-              </Tooltip>
-              <Tooltip title="Registrar WO (Walkover)">
-                <Button icon={<WarningOutlined />} onClick={() => setWoModalVisible(true)} danger>
-                  WO
-                </Button>
-              </Tooltip>
-              <Tooltip title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}>
-                <Button
-                  icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                  onClick={handleFullscreen}
-                />
-              </Tooltip>
-              {setsToWin > 1 && (
-                <Tag color="blue" style={{ fontSize: 'clamp(14px, 2.5vw, 18px)', padding: '4px 12px' }}>
-                  Set {currentSet} | {homeSetsWon} x {awaySetsWon}
-                </Tag>
-              )}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: shouldStackScores
+                ? '1fr'
+                : 'minmax(0, 1fr) clamp(52px, 7vw, 110px) minmax(0, 1fr)',
+              gridTemplateRows: shouldStackScores
+                ? 'minmax(220px, 1fr) auto minmax(220px, 1fr)'
+                : 'minmax(0, 1fr)',
+              gap: shouldStackScores ? 8 : 'clamp(6px, 1vw, 16px)',
+              alignItems: 'stretch',
+              height: shouldStackScores ? 'auto' : '100%',
+              minHeight: shouldStackScores ? '100%' : 0,
+              boxSizing: 'border-box',
+              paddingBottom: 16,
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            <div style={{ minWidth: 0, minHeight: 0 }}>
+              {renderTeamCard('left')}
             </div>
 
-            <Row
-              gutter={[16, 16]}
-              justify="center"
-              align="stretch"
-              style={{ minHeight: isCompact ? 'auto' : '70vh', position: 'relative', zIndex: 1 }}
-            >
-              <Col xs={24} md={11} style={{ display: 'flex' }}>
-                <div style={{ width: '100%' }}>{renderTeamCard('left')}</div>
-              </Col>
-              <Col xs={24} md={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Button
-                  shape="circle"
-                  size="large"
-                  icon={<SwapOutlined />}
-                  onClick={() => setSwapped((prev) => !prev)}
-                  style={{
-                    backgroundColor: '#333',
-                    borderColor: '#01ff69',
-                    color: '#01ff69',
-                    fontWeight: 'bold',
-                    fontSize: isCompact ? 16 : 20,
-                    width: isCompact ? 40 : 48,
-                    height: isCompact ? 40 : 48,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                />
-              </Col>
-              <Col xs={24} md={11} style={{ display: 'flex' }}>
-                <div style={{ width: '100%' }}>{renderTeamCard('right')}</div>
-              </Col>
-            </Row>
-          </>
+            {renderMiddleControls()}
+
+            <div style={{ minWidth: 0, minHeight: 0 }}>
+              {renderTeamCard('right')}
+            </div>
+          </div>
         )}
 
         <Modal
@@ -739,7 +895,12 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
           open={settingsVisible}
           onCancel={() => setSettingsVisible(false)}
           footer={[
-            <Button key="ok" type="primary" onClick={() => setSettingsVisible(false)} style={{ backgroundColor: '#01ff69', borderColor: '#00aa09', color: '#000' }}>
+            <Button
+              key="ok"
+              type="primary"
+              onClick={() => setSettingsVisible(false)}
+              style={{ backgroundColor: '#01ff69', borderColor: '#00aa09', color: '#000' }}
+            >
               OK
             </Button>,
           ]}
@@ -748,17 +909,17 @@ export const ScoreboardModal: React.FC<ScoreboardModalProps> = ({
         >
           <div style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
             <label style={{ minWidth: 130 }}>Pontos por set: </label>
-            <InputNumber min={1} value={editablePointsPerSet} onChange={(val) => setEditablePointsPerSet(val || 1)} style={{ width: '100%', maxWidth: 200 }} />
+            <InputNumber min={1} value={editablePointsPerSet} onChange={(value) => setEditablePointsPerSet(value || 1)} style={{ width: '100%', maxWidth: 200 }} />
           </div>
           {setsToWin > 1 && (
             <div style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
               <label style={{ minWidth: 130 }}>Pontos no tie-break: </label>
-              <InputNumber min={1} value={editableTieBreakPoints} onChange={(val) => setEditableTieBreakPoints(val || 1)} style={{ width: '100%', maxWidth: 200 }} />
+              <InputNumber min={1} value={editableTieBreakPoints} onChange={(value) => setEditableTieBreakPoints(value || 1)} style={{ width: '100%', maxWidth: 200 }} />
             </div>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
             <label style={{ minWidth: 130 }}>Vantagem mínima: </label>
-            <InputNumber min={1} value={minAdvantage} onChange={(val) => setMinAdvantage(val || 1)} style={{ width: '100%', maxWidth: 200 }} />
+            <InputNumber min={1} value={minAdvantage} onChange={(value) => setMinAdvantage(value || 1)} style={{ width: '100%', maxWidth: 200 }} />
           </div>
         </Modal>
 

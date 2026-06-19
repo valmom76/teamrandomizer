@@ -1,4 +1,7 @@
-/* src/components/manual/ManualTeamGenerator.css */
+/* =========================
+   Select de grupos
+========================= */
+
 .group-select-dropdown {
   background-color: #1f1f1f !important;
 }
@@ -17,20 +20,529 @@
   color: #fff !important;
 }
 
-.group-select-dropdown .ant-select-item-option-selected .ant-select-item-option-content {
+.group-select-dropdown
+  .ant-select-item-option-selected
+  .ant-select-item-option-content {
   color: #fff !important;
 }
 
-.group-select .ant-select-selector {
+.group-select .ant-select-selector,
+.manual-group-select .ant-select-selector {
   background-color: #1f1f1f !important;
   color: #fff !important;
   border-color: #434343 !important;
 }
 
-.group-select .ant-select-selection-item {
+.group-select .ant-select-selection-item,
+.manual-group-select .ant-select-selection-item {
   color: #fff !important;
 }
 
-.group-select .ant-select-arrow {
+.group-select .ant-select-arrow,
+.manual-group-select .ant-select-arrow {
   color: #fff !important;
+}
+
+/* =========================
+   Página
+========================= */
+
+.manual-page {
+  min-height: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: visible;
+  padding: 16px;
+  background: #050b07;
+}
+
+.manual-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.manual-title {
+  color: #01ff69 !important;
+  margin: 0 !important;
+  line-height: 1.15 !important;
+}
+
+.manual-header-counter {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(1, 255, 105, 0.35);
+  border-radius: 999px;
+  color: #01ff69;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(1, 255, 105, 0.08);
+}
+
+/* =========================
+   Layout desktop
+========================= */
+
+.manual-desktop-row {
+  flex: 1;
+  min-height: 0;
+}
+
+.manual-column {
+  min-height: 0;
+  display: flex;
+}
+
+/* =========================
+   Cards
+========================= */
+
+.manual-card {
+  width: 100%;
+  min-width: 0;
+  background-color: #1a1a1a !important;
+  border-color: #333 !important;
+  border-radius: 14px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.manual-card .ant-card-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px !important;
+}
+
+.manual-card-title {
+  color: #01ff69;
+  font-weight: 800;
+}
+
+.manual-inner-card {
+  background-color: #262626 !important;
+  border-color: #444 !important;
+  border-radius: 12px !important;
+}
+
+.manual-inner-card .ant-card-body {
+  padding: 12px !important;
+}
+
+/* =========================
+   Formulários e campos
+========================= */
+
+.manual-full-width {
+  width: 100%;
+}
+
+.manual-field-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.manual-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.manual-label {
+  color: #fff !important;
+  font-size: 14px;
+}
+
+.manual-number-input {
+  width: 100%;
+}
+
+.manual-error {
+  color: #ff4d4f !important;
+  font-size: 12px;
+}
+
+.manual-summary-box {
+  padding: 12px;
+  border-radius: 12px;
+  background: #101010;
+  border: 1px solid #333;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.manual-summary-label {
+  color: #aaa !important;
+}
+
+/* =========================
+   Botões
+========================= */
+
+.manual-primary-button {
+  background-color: #01ff69 !important;
+  border-color: #01ff69 !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+  border-radius: 10px !important;
+}
+
+.manual-primary-button:disabled {
+  opacity: 0.5;
+}
+
+.manual-secondary-button {
+  border-color: #01ff69 !important;
+  color: #01ff69 !important;
+  background: transparent !important;
+}
+
+/* =========================
+   Listas
+========================= */
+
+.manual-list {
+  width: 100%;
+}
+
+.manual-list-item {
+  border-bottom: 1px solid #333 !important;
+  gap: 8px;
+}
+
+.manual-list-item .ant-list-item-action {
+  margin-inline-start: 8px !important;
+}
+
+.manual-player-name {
+  color: #fff;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* =========================
+   Times
+========================= */
+
+.manual-teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+
+.manual-teams-list .manual-inner-card {
+  margin-bottom: 0;
+}
+
+.manual-team-name-input {
+  margin-bottom: 8px;
+}
+
+.manual-vacancies {
+  display: block;
+  color: #aaa !important;
+  margin-top: 8px;
+}
+
+.manual-loading {
+  color: #fff;
+  padding: 16px;
+}
+
+/* =========================
+   Abas mobile
+========================= */
+
+.manual-mobile-tabs {
+  flex: 1;
+  min-height: 0;
+}
+
+.manual-mobile-tabs .ant-tabs-nav {
+  margin-bottom: 12px !important;
+}
+
+.manual-mobile-tabs .ant-tabs-tab {
+  color: #aaa;
+}
+
+.manual-mobile-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #01ff69 !important;
+  font-weight: 800;
+}
+
+.manual-mobile-tabs .ant-tabs-ink-bar {
+  background: #01ff69 !important;
+}
+
+/* =========================
+   Barra inferior mobile
+========================= */
+
+.manual-mobile-create-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  margin: 0 -16px -16px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(5, 11, 7, 0.96);
+  border-top: 1px solid rgba(1, 255, 105, 0.25);
+  color: #fff;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* =========================
+   Modal
+========================= */
+
+.manual-modal .ant-modal-content,
+.manual-modal .ant-modal-header {
+  background: #1a1a1a !important;
+}
+
+.manual-modal .ant-modal-title {
+  color: #01ff69 !important;
+}
+
+.manual-modal-close {
+  color: #01ff69;
+}
+
+.manual-form .ant-form-item-label > label {
+  color: #fff !important;
+}
+
+.manual-form .ant-radio-wrapper {
+  color: #fff !important;
+}
+
+.manual-radio-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.manual-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.manual-group-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) 140px;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+}
+
+.manual-group-select {
+  width: 100%;
+}
+
+.manual-sets-card {
+  margin-bottom: 16px;
+}
+
+/* =========================
+   Ant Design dark fixes
+========================= */
+
+.manual-page .ant-input,
+.manual-page .ant-input-number,
+.manual-page .ant-input-number-input,
+.manual-modal .ant-input,
+.manual-modal .ant-input-number,
+.manual-modal .ant-input-number-input {
+  background-color: #1f1f1f !important;
+  color: #fff !important;
+  border-color: #434343 !important;
+}
+
+.manual-page .ant-input::placeholder,
+.manual-modal .ant-input::placeholder {
+  color: #777 !important;
+}
+
+.manual-page .ant-input-number-handler-wrap,
+.manual-modal .ant-input-number-handler-wrap {
+  background-color: #1f1f1f !important;
+  border-color: #434343 !important;
+}
+
+.manual-page .ant-empty-description,
+.manual-modal .ant-empty-description {
+  color: #aaa !important;
+}
+
+.manual-page .ant-card-head,
+.manual-modal .ant-card-head {
+  border-bottom-color: #333 !important;
+}
+
+/* =========================
+   Desktop
+========================= */
+
+@media (min-width: 768px) {
+  .manual-page {
+    height: calc(100vh - 64px);
+    overflow: hidden;
+  }
+
+  .manual-card {
+    height: 100%;
+  }
+
+  .manual-field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 767px) {
+  .manual-page {
+    min-height: 100dvh;
+    padding: 12px;
+    padding-bottom: 0;
+  }
+
+  .manual-header {
+    align-items: flex-start;
+  }
+
+  .manual-title {
+    font-size: 28px !important;
+    max-width: 230px;
+  }
+
+  .manual-header-counter {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .manual-card {
+    height: auto;
+  }
+
+  .manual-card .ant-card-body {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .manual-list-item {
+    align-items: flex-start !important;
+  }
+
+  .manual-list-item .ant-list-item-action {
+    margin-top: 4px;
+  }
+
+  .manual-mobile-tabs {
+    padding-bottom: 84px;
+  }
+
+  .manual-teams-list {
+    gap: 18px;
+    padding-bottom: 110px;
+  }
+
+  .manual-group-row {
+    grid-template-columns: 1fr;
+  }
+
+  .manual-radio-group {
+    flex-direction: column;
+  }
+
+  .manual-mobile-create-bar {
+    margin: 0 -12px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .manual-mobile-create-bar > div:first-child {
+    padding-left: 54px;
+  }
+
+  .manual-mobile-create-bar .manual-primary-button {
+    width: 110px;
+    height: 42px;
+  }
+}
+
+/* =========================
+   Celulares muito estreitos
+========================= */
+
+@media (max-width: 380px) {
+  .manual-title {
+    font-size: 24px !important;
+    max-width: 190px;
+  }
+
+  .manual-header-counter {
+    display: none;
+  }
+
+  .manual-list-item {
+    flex-direction: column;
+  }
+
+  .manual-list-item .ant-list-item-action {
+    margin-left: 0 !important;
+  }
+
+  .manual-list-item .ant-list-item-action > li {
+    padding-inline: 0 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /*
+    Deixa a contagem posicionada acima/ao lado esquerdo,
+    alinhada visualmente com o FAB.
+  */
+.manual-mobile-create-bar {
+  margin: 0 -12px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+}
+
+.manual-mobile-create-bar > div:first-child {
+  padding-left: 0;
+  padding-bottom: 0;
+  font-size: 13px;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.manual-mobile-create-bar .manual-primary-button {
+  width: 120px;
+  height: 42px;
+}
+
+  /*
+    Garante espaço no conteúdo para não esconder o último card
+    atrás da barra inferior e do FAB.
+  */
+  .manual-mobile-tabs {
+    padding-bottom: 96px;
+  }
+
+  .manual-teams-list {
+    padding-bottom: 20px;
+  }
 }
