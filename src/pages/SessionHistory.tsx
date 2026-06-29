@@ -33,11 +33,24 @@ export default function SessionHistory() {
   // Filtra apenas sessões com data futura
   const upcomingSessions = useMemo(() => {
     const now = new Date();
-    return sessions.filter(session => {
+    
+    // Filtra sessões futuras
+    const futureSessions = sessions.filter(session => {
       if (!session.playDate) return false;
-      const playDateTime = new Date(session.playDate);
-      return playDateTime > now;
+      return new Date(session.playDate) > now;
     });
+
+    // Agrupa por data/hora e mantém apenas a mais recente de cada grupo
+    const grouped = new Map<string, SessionSummary>();
+    
+    futureSessions.forEach(session => {
+      const key = session.playDate!; // playDate já validado como não nulo
+      if (!grouped.has(key) || new Date(session.createdAt) > new Date(grouped.get(key)!.createdAt)) {
+        grouped.set(key, session);
+      }
+    });
+
+    return Array.from(grouped.values());
   }, [sessions]);
 
   const modeLabel = (mode: string) => mode === 'DB' ? 'Sorteio' : 'Potes';

@@ -1,4 +1,4 @@
-import { Card, Col, Form, Input, Row, Space, Table, message, Modal, Tag, Switch } from "antd";
+import { Button, Card, Col, Form, Input, Row, Space, Table, message, Modal, Tag, Switch } from "antd";
 import { useEffect, useState } from "react";
 import { http } from "../api/http";
 import AppButton from "../components/AppButton";
@@ -139,13 +139,41 @@ export default function PositionsPage() {
         <Modal
           title="Editar Posição"
           open={editModalOpen}
-          onCancel={() => setEditModalOpen(false)}
-          onOk={handleUpdate}
-          okText="Salvar"
-          cancelText="Cancelar"
           width="min(90vw, 400px)"
           closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
-          styles={{ body: { backgroundColor: '#1a1a1a' }, header: { backgroundColor: '#1a1a1a', color: '#01ff69' } }}
+          styles={{ 
+            container: { backgroundColor: '#1a1a1a' }, 
+            header: { backgroundColor: '#1a1a1a', color: '#01ff69' } 
+          }}
+          footer={[
+            <Button 
+              key="cancel" 
+              onClick={() => setEditModalOpen(false)}
+              style={{ 
+                backgroundColor: '#333', 
+                borderColor: '#444', 
+                color: '#ccc',
+                fontWeight: 'bold',
+                borderRadius: 6
+              }}
+            >
+              Cancelar
+            </Button>,
+            <Button 
+              key="submit" 
+              type="primary" 
+              onClick={handleUpdate}
+              style={{ 
+                backgroundColor: '#01ff69', 
+                borderColor: '#01ff69', 
+                color: '#000',
+                fontWeight: 'bold',
+                borderRadius: 6
+              }}
+            >
+              Salvar
+            </Button>
+          ]}
         >
           <Form form={form} layout="vertical">
             <Form.Item name="name" label="Nome" rules={[{ required: true }]}>

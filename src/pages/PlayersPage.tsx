@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   Col,
   DatePicker,
@@ -418,6 +419,24 @@ export default function Players() {
             onConfirm={() => handleDelete(player.id)}
             okText="Sim"
             cancelText="Cancelar"
+            okButtonProps={{
+              style: {
+                backgroundColor: '#ff4d4f',
+                borderColor: '#ff4d4f',
+                color: '#fff',
+                fontWeight: 'bold',
+                borderRadius: 6,
+              },
+            }}
+            cancelButtonProps={{
+              style: {
+                backgroundColor: '#333',
+                borderColor: '#444',
+                color: '#ccc',
+                fontWeight: 'bold',
+                borderRadius: 6,
+              },
+            }}
           >
             <AppButton tone="reset" className="players-table-action">
               Excluir
@@ -618,24 +637,49 @@ export default function Players() {
         title={<span className="players-modal-title">Editar Jogador</span>}
         open={editModalOpen}
         onCancel={closeEdit}
-        onOk={handleUpdate}
-        confirmLoading={updating}
-        okText="Salvar"
-        cancelText="Cancelar"
         width="min(94vw, 560px)"
         className="players-modal"
         closeIcon={<CloseOutlined className="players-modal-close" />}
+        styles={{ 
+          header: { backgroundColor: '#1a1a1a', color: '#01ff69' },
+          container: { backgroundColor: '#1a1a1a' }
+        }}        
+        footer={[
+          <Button 
+            key="cancel" 
+            onClick={closeEdit}
+            style={{ 
+              backgroundColor: '#333', 
+              borderColor: '#444', 
+              color: '#ccc',
+              fontWeight: 'bold',
+              borderRadius: 6
+            }}
+          >
+            Cancelar
+          </Button>,
+          <Button 
+            key="submit" 
+            type="primary" 
+            onClick={handleUpdate}
+            loading={updating}
+            style={{ 
+              backgroundColor: '#01ff69', 
+              borderColor: '#01ff69', 
+              color: '#000',
+              fontWeight: 'bold',
+              borderRadius: 6
+            }}
+          >
+            Salvar
+          </Button>
+        ]}
       >
         <Form form={editForm} layout="vertical">
           <Form.Item
             name="name"
             label="Nome"
-            rules={[
-              {
-                required: true,
-                message: "Informe o nome",
-              },
-            ]}
+            rules={[{ required: true, message: "Informe o nome" }]}
           >
             <Input placeholder="Nome do jogador" />
           </Form.Item>
@@ -643,12 +687,7 @@ export default function Players() {
           <Form.Item
             name="sex"
             label="Sexo"
-            rules={[
-              {
-                required: true,
-                message: "Informe o sexo",
-              },
-            ]}
+            rules={[{ required: true, message: "Informe o sexo" }]}
           >
             <Radio.Group>
               <Radio value="M">M</Radio>
@@ -669,19 +708,14 @@ export default function Players() {
           </Form.Item>
 
           <Form.Item name="birthDate" label="Nascimento">
-            <DatePicker
-              format="DD/MM/YYYY"
-              className="players-full-control"
-            />
+            <DatePicker format="DD/MM/YYYY" className="players-full-control" />
           </Form.Item>
 
           <Form.Item label="Posições">
             <Select
               mode="multiple"
               placeholder="Selecione"
-              value={editPlayerPositions.map(
-                (position) => position.positionId
-              )}
+              value={editPlayerPositions.map(p => p.positionId)}
               onChange={handleEditPositionChange}
               className="players-full-control"
               options={positionOptions}
@@ -693,24 +727,15 @@ export default function Players() {
               {editPlayerPositions
                 .slice()
                 .sort((a, b) => a.priority - b.priority)
-                .map((position) => (
-                  <div
-                    key={position.positionId}
-                    className="players-priority-item"
-                  >
+                .map(position => (
+                  <div key={position.positionId} className="players-priority-item">
                     <span className="players-priority-name">
                       Prioridade {getPositionName(position.positionId)}
                     </span>
-
                     <InputNumber
                       min={1}
                       value={position.priority}
-                      onChange={(value) =>
-                        updateEditPositionPriority(
-                          position.positionId,
-                          value || 1
-                        )
-                      }
+                      onChange={value => updateEditPositionPriority(position.positionId, value || 1)}
                       className="players-full-control"
                     />
                   </div>
