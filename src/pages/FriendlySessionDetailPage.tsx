@@ -1,459 +1,240 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, Card, Select, Spin, Typography, message } from 'antd';
-import {
-  CalendarOutlined,
-  PlayCircleOutlined,
-  TrophyOutlined,
-} from '@ant-design/icons';
-
+import { Card, Typography, Spin, Tag, Row, Col, Space, Button } from 'antd';
+import { TeamOutlined, TrophyOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { http } from '../api/http';
 import { ScoreboardModal } from '../components/championship/ScoreboardModal';
+import { useMediaQuery } from 'react-responsive';
 
 const { Title, Text } = Typography;
 
-interface CourtSelection {
-  homeTeam: number | null;
-  awayTeam: number | null;
-}
-
-interface FriendlyTeam {
-  teamIndex: number;
-  teamName?: string;
-  playerNames?: string[];
-}
-
-interface FriendlyMatch {
-  homeTeamIndex: number;
-  awayTeamIndex: number;
-  homeTeamName?: string;
-  awayTeamName?: string;
-  homeScore: number;
-  awayScore: number;
-  winnerTeamIndex: number;
-  walkover?: boolean;
-}
-
-interface FriendlyCourt {
-  name: string;
-  teams: FriendlyTeam[];
-  matches?: FriendlyMatch[];
-}
-
-interface FriendlySessionDetails {
-  dateFormatted?: string;
-  courts: FriendlyCourt[];
-  setsToWin?: number;
-  pointsPerSet?: number;
-}
-
-interface CourtTeamStats {
-  team: FriendlyTeam;
-  wins: number;
-  matches: number;
-  playersCount: number;
-}
-
 export default function FriendlySessionDetailPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
-
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const [details, setDetails] = useState<FriendlySessionDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const [details, setDetails] = useState<any>(null);
   const [showScoreboard, setShowScoreboard] = useState(false);
-
   const [scoreboardData, setScoreboardData] = useState<{
     courtName: string;
     homeTeam: number;
     awayTeam: number;
   } | null>(null);
-
-  const [courtSelections, setCourtSelections] = useState<Record<string, CourtSelection>>({});
-
-  const getTeamName = (team?: FriendlyTeam, fallbackIndex?: number) => {
-    if (team?.teamName) return team.teamName;
-    if (fallbackIndex !== undefined) return `Time ${fallbackIndex}`;
-    return 'Time';
-  };
-
-  const buildCourtStats = (court: FriendlyCourt): CourtTeamStats[] => {
-    const winsMap: Record<number, number> = {};
-    const matchesMap: Record<number, number> = {};
-
-    court.teams.forEach((team) => {
-      winsMap[team.teamIndex] = 0;
-      matchesMap[team.teamIndex] = 0;
-    });
-
-    court.matches?.forEach((match) => {
-      matchesMap[match.homeTeamIndex] = (matchesMap[match.homeTeamIndex] || 0) + 1;
-      matchesMap[match.awayTeamIndex] = (matchesMap[match.awayTeamIndex] || 0) + 1;
-
-      if (match.winnerTeamIndex !== null && match.winnerTeamIndex !== undefined) {
-        winsMap[match.winnerTeamIndex] = (winsMap[match.winnerTeamIndex] || 0) + 1;
-      }
-    });
-
-    return court.teams
-      .map((team) => ({
-        team,
-        wins: winsMap[team.teamIndex] || 0,
-        matches: matchesMap[team.teamIndex] || 0,
-        playersCount: team.playerNames?.length || 0,
-      }))
-      .sort((a, b) => {
-        if (b.wins !== a.wins) return b.wins - a.wins;
-        return a.team.teamIndex - b.team.teamIndex;
-      });
-  };
-
-  const loadDetails = useCallback(async () => {
-    if (!sessionId) return;
-
-    try {
-      setLoading(true);
-
-      const res = await http.get<FriendlySessionDetails>(
-        `/game-sessions/${sessionId}/details`,
-      );
-
-      setDetails(res.data);
-
-      setCourtSelections((prev) => {
-        const next: Record<string, CourtSelection> = {};
-
-        res.data.courts.forEach((court) => {
-          next[court.name] = prev[court.name] || {
-            homeTeam: null,
-            awayTeam: null,
-          };
-        });
-
-        return next;
-      });
-    } catch {
-      messageApi.error('Não foi possível carregar os dados da sessão.');
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId, messageApi]);
+  const [selectedCourt, setSelectedCourt] = useState<string | null>(null);
 
   useEffect(() => {
-    loadDetails();
-  }, [loadDetails]);
-
-  const handleTeamSelect = (
-    courtName: string,
-    type: 'home' | 'away',
-    teamIndex: number | null,
-  ) => {
-    setCourtSelections((prev) => {
-      const current = prev[courtName] || {
-        homeTeam: null,
-        awayTeam: null,
-      };
-
-      if (type === 'home') {
-        return {
-          ...prev,
-          [courtName]: {
-            homeTeam: teamIndex,
-            awayTeam: current.awayTeam === teamIndex ? null : current.awayTeam,
-          },
-        };
+    http.get(`/game-sessions/${sessionId}/details`).then(res => {
+      setDetails(res.data);
+      if (res.data?.courts?.length === 1) {
+        setSelectedCourt(res.data.courts[0].name);
       }
-
-      return {
-        ...prev,
-        [courtName]: {
-          ...current,
-          awayTeam: teamIndex,
-        },
-      };
     });
-  };
+  }, [sessionId]);
 
-  const openScoreboard = (
-    courtName: string,
-    homeTeam: number,
-    awayTeam: number,
-  ) => {
-    setScoreboardData({
-      courtName,
-      homeTeam,
-      awayTeam,
-    });
-
+  const openScoreboard = (courtName: string, homeTeam: number, awayTeam: number) => {
+    setScoreboardData({ courtName, homeTeam, awayTeam });
     setShowScoreboard(true);
   };
 
   const handleSaveFriendly = async (matchData: any) => {
-    if (!scoreboardData || !sessionId) return;
-
-    try {
-      await http.post(`/game-sessions/${sessionId}/matches`, {
-        courtName: scoreboardData.courtName,
-        homeTeamIndex: scoreboardData.homeTeam,
-        awayTeamIndex: scoreboardData.awayTeam,
-        homeScore: matchData.homeScore,
-        awayScore: matchData.awayScore,
-        walkover: matchData.walkover || false,
-        winnerTeamIndex: matchData.winnerTeamIndex,
-      });
-
-      setCourtSelections((prev) => ({
-        ...prev,
-        [scoreboardData.courtName]: {
-          homeTeam: null,
-          awayTeam: null,
-        },
-      }));
-
-      setShowScoreboard(false);
-      setScoreboardData(null);
-
-      await loadDetails();
-
-      messageApi.success('Partida registrada com sucesso.');
-    } catch {
-      messageApi.error('Não foi possível salvar a partida.');
-      throw new Error('Erro ao salvar partida amistosa.');
-    }
+    if (!scoreboardData) return;
+    await http.post(`/game-sessions/${sessionId}/matches`, {
+      courtName: scoreboardData.courtName,
+      homeTeamIndex: scoreboardData.homeTeam,
+      awayTeamIndex: scoreboardData.awayTeam,
+      homeScore: matchData.homeScore,
+      awayScore: matchData.awayScore,
+      walkover: matchData.walkover || false,
+      winnerTeamIndex: matchData.winnerTeamIndex,
+    });
+    const res = await http.get(`/game-sessions/${sessionId}/details`);
+    setDetails(res.data);
   };
 
-  if (loading || !details) {
+  if (!details) return <Spin size="large" style={{ display: 'block', marginTop: 50 }} />;
+
+  const renderCourtContent = (court: any) => {
+    const teams = court.teams || [];
+    const pairs: { home: any; away: any }[] = [];
+    for (let i = 0; i < teams.length; i++) {
+      for (let j = i + 1; j < teams.length; j++) {
+        pairs.push({ home: teams[i], away: teams[j] });
+      }
+    }
+
+    // Ranking de vitórias (apenas se houver partidas)
+    const winsMap: Record<string, number> = {};
+    teams.forEach((t: any) => {
+      winsMap[t.teamName || `Time ${t.teamIndex}`] = 0;
+    });
+    court.matches?.forEach((m: any) => {
+      if (m.winnerTeamIndex === m.homeTeamIndex) {
+        const name = m.homeTeamName || `Time ${m.homeTeamIndex}`;
+        winsMap[name] = (winsMap[name] || 0) + 1;
+      } else if (m.winnerTeamIndex === m.awayTeamIndex) {
+        const name = m.awayTeamName || `Time ${m.awayTeamIndex}`;
+        winsMap[name] = (winsMap[name] || 0) + 1;
+      }
+    });
+    const sorted = Object.entries(winsMap).sort((a, b) => b[1] - a[1]);
+    const hasWins = sorted.some(([, v]) => v > 0);
+
     return (
-      <div className="friendly-loading">
-        <Spin size="large" />
-      </div>
+      <>
+        {details.courts.length > 1 && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => setSelectedCourt(null)}
+            style={{ marginBottom: 16, borderColor: '#01ff69', color: '#01ff69' }}
+          >
+            Trocar quadra
+          </Button>
+        )}
+
+        <Card
+          title={<span style={{ color: '#01ff69', fontSize: 'clamp(18px, 2.5vw, 24px)' }}>{court.name}</span>}
+          style={{
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #333',
+            borderRadius: 8,
+            marginBottom: 24,
+          }}
+          styles={{ body: { padding: isMobile ? 12 : 16 } }}
+        >
+          {hasWins && (
+            <div style={{
+              display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16,
+              padding: '8px 12px', backgroundColor: '#262626', borderRadius: 6,
+              alignItems: 'center',
+            }}>
+              <TrophyOutlined style={{ color: '#ff9f1a', fontSize: 14 }} />
+              {sorted.filter(([, v]) => v > 0).map(([name, wins], i) => (
+                <Tag key={name} color={i === 0 ? 'gold' : 'default'} style={{ margin: 0, fontWeight: 600, fontSize: 12 }}>
+                  {name}: {wins}V
+                </Tag>
+              ))}
+            </div>
+          )}
+
+          <Row gutter={[12, 12]}>
+            {pairs.map(({ home, away }) => {
+              const homeName = home.teamName || `Time ${home.teamIndex}`;
+              const awayName = away.teamName || `Time ${away.teamIndex}`;
+              const homePlayers = home.playerNames?.join(', ') || 'Nenhum jogador';
+              const awayPlayers = away.playerNames?.join(', ') || 'Nenhum jogador';
+
+              return (
+                <Col xs={24} sm={12} md={8} lg={6} key={`${home.teamIndex}-${away.teamIndex}`}>
+                  <div
+                    onClick={() => openScoreboard(court.name, home.teamIndex, away.teamIndex)}
+                    style={{
+                      backgroundColor: '#01ff69',
+                      borderRadius: 8,
+                      padding: 12,
+                      height: '100%',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      border: '1px solid #01ff69',
+                    }}
+                  >
+                    <Space orientation="vertical" size={8} style={{ width: '100%', textAlign: 'center' }}>
+                      <div>
+                        <Text strong style={{ color: '#000', fontSize: 18 }}>{homeName}</Text>
+                        <Text style={{ color: '#000', fontSize: 14, display: 'block' }}>{homePlayers}</Text>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                        <div style={{ flex: 1, height: 1, backgroundColor: '#000' }} />
+                        <Text style={{ color: '#000', fontWeight: 'bold', fontSize: 16 }}>vs</Text>
+                        <div style={{ flex: 1, height: 1, backgroundColor: '#000' }} />
+                      </div>
+                      <div>
+                        <Text strong style={{ color: '#000', fontSize: 18 }}>{awayName}</Text>
+                        <Text style={{ color: '#000', fontSize: 14, display: 'block' }}>{awayPlayers}</Text>
+                      </div>
+                    </Space>
+                  </div>
+                </Col>
+              );
+            })}
+          </Row>
+
+          {/* Partidas realizadas (apenas histórico) */}
+          {court.matches?.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <Text style={{ color: '#01ff69', fontWeight: 'bold', fontSize: 14 }}>Partidas realizadas:</Text>
+              {court.matches.map((match: any, idx: number) => (
+                <div key={idx} style={{
+                  marginTop: 8, padding: '8px 12px', backgroundColor: '#262626',
+                  borderRadius: 6, border: '1px solid #333', display: 'flex',
+                  justifyContent: 'space-between', color: '#ccc', fontSize: 13,
+                }}>
+                  <span>{match.homeTeamName} vs {match.awayTeamName}</span>
+                  <span style={{ color: '#01ff69', fontWeight: 'bold' }}>
+                    {match.homeScore} x {match.awayScore}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </>
     );
-  }
+  };
+
+  const renderCourtSelection = () => (
+    <div style={{ textAlign: 'center', marginTop: isMobile ? 40 : 80 }}>
+      <Title level={3} style={{ color: '#01ff69', marginBottom: 32 }}>
+        Selecione a quadra
+      </Title>
+      <Row gutter={[16, 16]} justify="center">
+        {details.courts.map((court: any) => (
+          <Col xs={24} sm={12} key={court.name}>
+            <Button
+              block
+              size="large"
+              onClick={() => setSelectedCourt(court.name)}
+              style={{
+                height: isMobile ? 80 : 120,
+                fontSize: isMobile ? 20 : 28,
+                fontWeight: 'bold',
+                backgroundColor: '#1a1a1a',
+                borderColor: '#01ff69',
+                color: '#01ff69',
+                borderRadius: 12,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <TeamOutlined style={{ fontSize: isMobile ? 24 : 32, marginBottom: 8 }} />
+              {court.name}
+            </Button>
+          </Col>
+        ))}
+      </Row>
+    </div>
+  );
 
   return (
-    <main className="friendly-page">
-      {contextHolder}
+    <div style={{
+      padding: isMobile ? 8 : 'clamp(12px, 2vw, 24px)',
+      maxWidth: 1400,
+      margin: '0 auto',
+      width: '100%',
+      boxSizing: 'border-box',
+    }}>
+      <Title level={2} style={{ color: '#01ff69', marginBottom: 24, fontSize: 'clamp(20px, 4vw, 28px)' }}>
+        <TeamOutlined style={{ marginRight: 12 }} />
+        {details.sessionDate || details.dateFormatted || 'Sessão de Times'}
+        {details.sessionTime && <span style={{ fontSize: 16, color: '#aaa', marginLeft: 8 }}>às {details.sessionTime}</span>}
+      </Title>
 
-      <header className="friendly-header">
-        <div>
-          <Title level={2} className="friendly-title">
-            <CalendarOutlined />
-            {details.dateFormatted || 'Sessão de Times'}
-          </Title>
-        </div>
-      </header>
-
-      <section className="courts-list">
-        {details.courts.map((court) => {
-          const selection = courtSelections[court.name] || {
-            homeTeam: null,
-            awayTeam: null,
-          };
-
-          const canStart =
-            selection.homeTeam !== null &&
-            selection.awayTeam !== null &&
-            selection.homeTeam !== selection.awayTeam;
-
-          const courtStats = buildCourtStats(court);
-          const hasWins = courtStats.some((item) => item.wins > 0);
-
-          const statsByTeam = courtStats.reduce<Record<number, CourtTeamStats>>(
-            (acc, item) => {
-              acc[item.team.teamIndex] = item;
-              return acc;
-            },
-            {},
-          );
-
-          return (
-            <Card
-              key={court.name}
-              className="court-card"
-              title={
-                <div className="court-header">
-                  <div>                    
-                    <h2 className="court-title">{court.name}</h2>
-                  </div>
-                </div>
-              }
-            >
-              <section className="ranking-panel">
-                <div className="ranking-title">
-                  <TrophyOutlined />
-                  <span>Ranking da quadra</span>
-                </div>
-
-                {hasWins ? (
-                  <div className="ranking-list">
-                    {courtStats.map((item, index) => (
-                      <div
-                        key={item.team.teamIndex}
-                        className={`ranking-item ${
-                          index === 0 && item.wins > 0 ? 'first' : ''
-                        }`}
-                      >
-                        <div className="ranking-position">{index + 1}º</div>
-
-                        <div className="ranking-info">
-                          <strong>{getTeamName(item.team)}</strong>
-                          <span>
-                            {item.wins} vitória{item.wins === 1 ? '' : 's'}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <Text className="ranking-empty">
-                    Nenhuma partida registrada ainda nesta quadra.
-                  </Text>
-                )}
-              </section>
-
-              <section className="teams-grid">
-                {court.teams.map((team) => {
-                  const stats = statsByTeam[team.teamIndex];
-
-                  const selectedAsHome = selection.homeTeam === team.teamIndex;
-                  const selectedAsAway = selection.awayTeam === team.teamIndex;
-
-                  return (
-                    <article
-                      key={team.teamIndex}
-                      className={[
-                        'friendly-team-card',
-                        selectedAsHome ? 'home' : '',
-                        selectedAsAway ? 'away' : '',
-                      ].join(' ')}
-                    >
-                      <div className="friendly-team-header">
-                        <div>
-                          <h3 className="friendly-team-name">
-                            {getTeamName(team)}
-                          </h3>
-                        </div>
-
-                        <div className="friendly-team-badges">
-                          {selectedAsHome && (
-                            <span className="friendly-role-badge home">
-                              Casa
-                            </span>
-                          )}
-
-                          {selectedAsAway && (
-                            <span className="friendly-role-badge away">
-                              Visitante
-                            </span>
-                          )}
-
-                          <span className="friendly-wins-badge">
-                            {stats?.wins || 0}V
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="friendly-players-list">
-                        {team.playerNames?.length ? (
-                          team.playerNames.map((player) => (
-                            <span key={player} className="friendly-player-chip">
-                              {player}
-                            </span>
-                          ))
-                        ) : (
-                          <Text className="friendly-players-empty">
-                            Nenhum jogador
-                          </Text>
-                        )}
-                      </div>
-                    </article>
-                  );
-                })}
-              </section>
-
-              <section className="match-builder">
-                <div className="match-field">
-                  <label>Time da casa</label>
-
-                  <Select<number>
-                    allowClear
-                    showSearch
-                    placeholder="Selecione o time"
-                    className="friendly-select"
-                    optionFilterProp="label"
-                    value={selection.homeTeam ?? undefined}
-                    onChange={(value) =>
-                      handleTeamSelect(court.name, 'home', value ?? null)
-                    }
-                    options={court.teams.map((team) => {
-                      const stats = statsByTeam[team.teamIndex];
-
-                      return {
-                        value: team.teamIndex,
-                        label: `${getTeamName(team)}${
-                          stats?.wins ? ` • ${stats.wins}V` : ''
-                        }`,
-                      };
-                    })}
-                  />
-                </div>
-
-                <div className="versus-box">
-                  <span>VS</span>
-                </div>
-
-                <div className="match-field">
-                  <label>Time visitante</label>
-
-                  <Select<number>
-                    allowClear
-                    showSearch
-                    placeholder="Selecione o time"
-                    className="friendly-select"
-                    optionFilterProp="label"
-                    value={selection.awayTeam ?? undefined}
-                    onChange={(value) =>
-                      handleTeamSelect(court.name, 'away', value ?? null)
-                    }
-                    options={court.teams
-                      .filter((team) => team.teamIndex !== selection.homeTeam)
-                      .map((team) => {
-                        const stats = statsByTeam[team.teamIndex];
-
-                        return {
-                          value: team.teamIndex,
-                          label: `${getTeamName(team)}${
-                            stats?.wins ? ` • ${stats.wins}V` : ''
-                          }`,
-                        };
-                      })}
-                  />
-                </div>
-
-                <Button
-                  type="primary"
-                  icon={<PlayCircleOutlined />}
-                  disabled={!canStart}
-                  className="friendly-start-btn"
-                  style={{ color: '#000' }}
-                  onClick={() => {
-                    if (!canStart) return;
-
-                    openScoreboard(
-                      court.name,
-                      selection.homeTeam!,
-                      selection.awayTeam!,
-                    );
-                  }}
-                >
-                  Iniciar Jogo
-                </Button>
-              </section>
-            </Card>
-          );
-        })}
-      </section>
+      {!selectedCourt && details.courts.length > 1 ? (
+        renderCourtSelection()
+      ) : (
+        details.courts
+          .filter((c: any) => c.name === (selectedCourt || details.courts[0]?.name))
+          .map((court: any) => <div key={court.name}>{renderCourtContent(court)}</div>)
+      )}
 
       {showScoreboard && scoreboardData && (
         <ScoreboardModal
@@ -466,22 +247,20 @@ export default function FriendlySessionDetailPage() {
           generationSessionId={sessionId}
           onSave={handleSaveFriendly}
           onSuccess={() => setShowScoreboard(false)}
-          setsToWin={details.setsToWin || 1}
-          pointsPerSet={details.pointsPerSet || 12}
           homeTeamName={
             details.courts
-              .find((court) => court.name === scoreboardData.courtName)
-              ?.teams.find((team) => team.teamIndex === scoreboardData.homeTeam)
+              .find((c: any) => c.name === scoreboardData.courtName)
+              ?.teams.find((t: any) => t.teamIndex === scoreboardData.homeTeam)
               ?.teamName || `Time ${scoreboardData.homeTeam}`
           }
           awayTeamName={
             details.courts
-              .find((court) => court.name === scoreboardData.courtName)
-              ?.teams.find((team) => team.teamIndex === scoreboardData.awayTeam)
+              .find((c: any) => c.name === scoreboardData.courtName)
+              ?.teams.find((t: any) => t.teamIndex === scoreboardData.awayTeam)
               ?.teamName || `Time ${scoreboardData.awayTeam}`
           }
         />
       )}
-    </main>
+    </div>
   );
-}
+};

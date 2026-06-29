@@ -1,12 +1,8 @@
-import { Card, Form, Input, Modal, Popconfirm, Radio, Table, Typography, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { Card, Col, Form, Input, Row, Space, Table, message, Modal, Tag, Switch } from "antd";
 import { useEffect, useState } from "react";
-import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-
 import { http } from "../api/http";
 import AppButton from "../components/AppButton";
-
-const { Title, Text } = Typography;
+import { CloseOutlined } from "@ant-design/icons";
 
 export interface Position {
   id: string;
@@ -15,29 +11,20 @@ export interface Position {
 }
 
 export default function PositionsPage() {
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const [createForm] = Form.useForm();
-  const [editForm] = Form.useForm();
-
   const [items, setItems] = useState<Position[]>([]);
   const [loading, setLoading] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [updating, setUpdating] = useState(false);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editing, setEditing] = useState<Position | null>(null);
+  const [form] = Form.useForm();
 
   const refresh = async () => {
     setLoading(true);
-
     try {
       const { data } = await http.get<Position[]>("/positions");
-      setItems(Array.isArray(data) ? data : []);
-    } catch (error: any) {
-      messageApi.error(
-        error?.response?.data?.message ?? "Erro ao carregar posições"
-      );
+      setItems(data);
+    } catch (e: any) {
+      message.error(e?.response?.data?.message ?? "Erro ao carregar posições");
     } finally {
       setLoading(false);
     }
@@ -48,252 +35,128 @@ export default function PositionsPage() {
   }, []);
 
   const handleCreate = async (values: { name: string }) => {
-    setCreating(true);
-
     try {
       await http.post("/positions", values);
-
-      messageApi.success("Posição criada com sucesso.");
-      createForm.resetFields();
-
-      await refresh();
-    } catch (error: any) {
-      messageApi.error(
-        error?.response?.data?.message ?? "Erro ao criar posição"
-      );
-    } finally {
-      setCreating(false);
+      message.success("Posição criada");
+      refresh();
+    } catch (e: any) {
+      message.error(e?.response?.data?.message ?? "Erro ao criar posição");
     }
   };
 
-  const openEdit = (position: Position) => {
-    setEditing(position);
-
-    editForm.setFieldsValue({
-      name: position.name,
-      active: position.active,
-    });
-
+  const openEdit = (pos: Position) => {
+    setEditing(pos);
+    form.setFieldsValue({ name: pos.name, active: pos.active });
     setEditModalOpen(true);
-  };
-
-  const closeEdit = () => {
-    setEditModalOpen(false);
-    setEditing(null);
-    editForm.resetFields();
   };
 
   const handleUpdate = async () => {
     if (!editing) return;
-
-    setUpdating(true);
-
     try {
-      const values = await editForm.validateFields();
-
+      const values = await form.validateFields();
       await http.put(`/positions/${editing.id}`, values);
-
-      messageApi.success("Posição atualizada com sucesso.");
-      closeEdit();
-
-      await refresh();
-    } catch (error: any) {
-      if (error?.errorFields) return;
-
-      messageApi.error(
-        error?.response?.data?.message ?? "Erro ao atualizar posição"
-      );
-    } finally {
-      setUpdating(false);
+      message.success("Posição atualizada");
+      setEditModalOpen(false);
+      refresh();
+    } catch (e: any) {
+      message.error(e?.response?.data?.message ?? "Erro ao atualizar");
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await http.delete(`/positions/${id}`);
 
-      messageApi.success("Posição excluída com sucesso.");
-      await refresh();
-    } catch (error: any) {
-      messageApi.error(
-        error?.response?.data?.message ?? "Erro ao excluir posição"
-      );
-    }
-  };
-
-  const columns: ColumnsType<Position> = [
+  const columns = [
+    { title: "Nome", dataIndex: "name", key: "name", width: "50%", ellipsis: true },
     {
-      title: "Nome",
-      dataIndex: "name",
-      key: "name",
-      width: "45%",
-      ellipsis: true,
-      render: (name: string) => <span className="position-name">{name}</span>,
-    },
-    {
-      title: "Status",
+      title: "Ativa",
       dataIndex: "active",
       key: "active",
       width: "20%",
-      align: "center",
+      align: "center" as const,
       render: (active: boolean) => (
-        <span className={`position-status ${active ? "active" : "inactive"}`}>
-          {active ? "Ativa" : "Inativa"}
-        </span>
+        <Tag color={active ? "green" : "red"}>{active ? "Sim" : "Não"}</Tag>
       ),
     },
     {
       title: "Ações",
       key: "actions",
-      width: "35%",
-      align: "center",
-      render: (_, record) => (
-        <div className="positions-actions">
-          <AppButton
-            tone="save"
-            className="positions-action"
-            onClick={() => openEdit(record)}
-          >
+      width: "30%",
+      align: "center" as const,
+      render: (_: any, record: Position) => (
+        <Space size={[4, 4]} wrap>
+          <AppButton tone="save" onClick={() => openEdit(record)} style={{ fontSize: 12, whiteSpace: 'nowrap' }}>
             Editar
           </AppButton>
-
-          <Popconfirm
-            title="Excluir posição?"
-            description="Essa ação não poderá ser desfeita."
-            onConfirm={() => handleDelete(record.id)}
-            okText="Sim"
-            cancelText="Cancelar"
-          >
-            <AppButton tone="reset" className="positions-action">
-              Excluir
-            </AppButton>
-          </Popconfirm>
-        </div>
+        </Space>
       ),
     },
   ];
 
+  const cardBodyStyle = { padding: 'clamp(12px, 3vw, 24px)' };
+
   return (
-    <main className="positions-page">
-      {contextHolder}
-
-      <header className="positions-header">
-        <Title level={2} className="positions-title">
-          Posições
-        </Title>
-
-        <Text className="positions-subtitle">
-          Cadastre e gerencie as posições usadas no cadastro dos atletas.
-        </Text>
-      </header>
-
-      <section className="positions-stack">
+    <div style={{ padding: 'clamp(8px, 2vw, 24px)', maxWidth: 800, margin: '0 auto' }}>
+      <Space direction="vertical" style={{ width: "100%" }} size={16}>
         <Card
-          className="positions-card"
-          title={<span className="positions-section-title">Nova Posição</span>}
+          title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)', color: '#01ff69' }}>Nova Posição</span>}
+          styles={{ body: cardBodyStyle, header: { borderBottom: '1px solid #333' } }}
+          style={{ backgroundColor: '#1a1a1a', borderColor: '#333' }}
         >
-          <Form
-            form={createForm}
-            layout="vertical"
-            onFinish={handleCreate}
-            className="positions-create-form"
-          >
-            <div className="positions-form-grid">
-              <Form.Item
-                name="name"
-                label="Nome"
-                rules={[
-                  {
-                    required: true,
-                    message: "Informe o nome da posição",
-                  },
-                ]}
-              >
-                <Input placeholder="Ex: Levantador, Central, Ponteiro..." />
-              </Form.Item>
-
-              <Form.Item>
-                <div className="positions-submit">
-                  <AppButton
-                    tone="generate"
-                    htmlType="submit"
-                    disabled={creating}
-                  >
-                    <PlusOutlined />
+          <Form layout="vertical" onFinish={handleCreate}>
+            <Row gutter={[12, 8]} align="bottom">
+              <Col xs={24} sm={18} md={20}>
+                <Form.Item name="name" rules={[{ required: true, message: "Informe o nome da posição" }]} label="Nome" style={{ marginBottom: 0 }}>
+                  <Input placeholder="Ex: Levantador, Central..." />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={6} md={4}>
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <AppButton tone="generate" htmlType="submit" style={{ width: "100%" }}>
                     Adicionar
                   </AppButton>
-                </div>
-              </Form.Item>
-            </div>
+                </Form.Item>
+              </Col>
+            </Row>
           </Form>
         </Card>
 
         <Card
-          className="positions-card positions-table-card"
-          title={
-            <span className="positions-section-title">
-              Posições cadastradas
-            </span>
-          }
+          title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)', color: '#01ff69' }}>Posições</span>}
+          styles={{ body: cardBodyStyle, header: { borderBottom: '1px solid #333' } }}
+          style={{ backgroundColor: '#1a1a1a', borderColor: '#333' }}
         >
-          <Table<Position>
+          <Table
             rowKey="id"
             loading={loading}
             dataSource={items}
             columns={columns}
-            scroll={{
-              x: "max-content",
-            }}
-            pagination={{
-              responsive: true,
-              pageSize: 10,
-              showSizeChanger: false,
-            }}
-            locale={{
-              emptyText: (
-                <div className="positions-empty">
-                  Nenhuma posição cadastrada.
-                </div>
-              ),
-            }}
+            scroll={{ x: 'max-content' }}
+            pagination={{ responsive: true, pageSize: 10, showSizeChanger: false }}
+            style={{ backgroundColor: '#1a1a1a' }}
+            rowClassName={() => 'dark-row'}
           />
         </Card>
-      </section>
 
-      <Modal
-        title={<span className="positions-modal-title">Editar Posição</span>}
-        open={editModalOpen}
-        onCancel={closeEdit}
-        onOk={handleUpdate}
-        confirmLoading={updating}
-        okText="Salvar"
-        cancelText="Cancelar"
-        width={400}
-        className="positions-modal"
-        closeIcon={<CloseOutlined className="positions-modal-close" />}
-      >
-        <Form form={editForm} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Nome"
-            rules={[
-              {
-                required: true,
-                message: "Informe o nome da posição",
-              },
-            ]}
-          >
-            <Input placeholder="Nome da posição" />
-          </Form.Item>
-
-          <Form.Item name="active" label="Status">
-            <Radio.Group>
-              <Radio value={true}>Ativa</Radio>
-              <Radio value={false}>Inativa</Radio>
-            </Radio.Group>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </main>
+        <Modal
+          title="Editar Posição"
+          open={editModalOpen}
+          onCancel={() => setEditModalOpen(false)}
+          onOk={handleUpdate}
+          okText="Salvar"
+          cancelText="Cancelar"
+          width="min(90vw, 400px)"
+          closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
+          styles={{ body: { backgroundColor: '#1a1a1a' }, header: { backgroundColor: '#1a1a1a', color: '#01ff69' } }}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item name="name" label="Nome" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="active" label="Ativa" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Space>
+    </div>
   );
-}
+};

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Card, Row, Col, Typography, Spin, Tag, Button, Empty } from 'antd';
 import { HistoryOutlined, PlayCircleOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +13,7 @@ interface SessionSummary {
   teamCount: number;
   playersPerTeam: number;
   playersCount: number;
-  sourceFileName: string | null;
+  playDate: string | null;
 }
 
 export default function SessionHistory() {
@@ -22,11 +22,23 @@ export default function SessionHistory() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    http.get('/api/session-history')
-      .then(res => setSessions(res.data))
-      .catch(() => {})
+    http.get('/session-history')
+      .then(res => {
+        setSessions(res.data);
+      })
+      .catch((err) => console.error('Erro ao carregar sessões:', err))
       .finally(() => setLoading(false));
   }, []);
+
+  // Filtra apenas sessões com data futura
+  const upcomingSessions = useMemo(() => {
+    const now = new Date();
+    return sessions.filter(session => {
+      if (!session.playDate) return false;
+      const playDateTime = new Date(session.playDate);
+      return playDateTime > now;
+    });
+  }, [sessions]);
 
   const modeLabel = (mode: string) => mode === 'DB' ? 'Sorteio' : 'Potes';
 
@@ -36,16 +48,16 @@ export default function SessionHistory() {
     <div style={{ padding: 'clamp(12px, 3vw, 24px)', maxWidth: 1200, margin: '0 auto' }}>
       <Title level={2} style={{ color: '#01ff69', marginBottom: 24, fontSize: 'clamp(20px, 4vw, 28px)' }}>
         <HistoryOutlined style={{ marginRight: 12 }} />
-        Histórico de Sessões
+        Próximos Jogos
       </Title>
 
-      {sessions.length === 0 ? (
+      {upcomingSessions.length === 0 ? (
         <Card style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', textAlign: 'center', padding: 40 }}>
-          <Empty description="Nenhuma sessão encontrada" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty description="Nenhum jogo agendado" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </Card>
       ) : (
         <Row gutter={[16, 16]}>
-          {sessions.map(session => (
+          {upcomingSessions.map(session => (
             <Col xs={24} sm={12} md={8} key={session.sessionId}>
               <Card
                 style={{
@@ -58,10 +70,12 @@ export default function SessionHistory() {
               >
                 <div style={{ marginBottom: 12 }}>
                   <Tag color={session.mode === 'DB' ? 'blue' : 'orange'}>{modeLabel(session.mode)}</Tag>
-                  <Text style={{ color: '#888', fontSize: 12, marginLeft: 8 }}>
-                    {new Date(session.createdAt).toLocaleDateString('pt-BR')} às{' '}
-                    {new Date(session.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
+                  {session.playDate && (
+                    <Text style={{ color: '#01ff69', fontSize: 12, marginLeft: 8 }}>
+                      {new Date(session.playDate).toLocaleDateString('pt-BR')} às{' '}
+                      {new Date(session.playDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  )}
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
@@ -69,21 +83,15 @@ export default function SessionHistory() {
                     <TeamOutlined /> {session.teamCount} times • {session.playersPerTeam} jogadores/time
                   </Text>
                   <Text style={{ color: '#888', fontSize: 12 }}>
-                    {session.playersCount} jogadores utilizados
+                    {session.playersCount} jogadores
                   </Text>
                 </div>
-
-                {session.sourceFileName && (
-                  <div style={{ marginBottom: 12 }}>
-                    <Text style={{ color: '#888', fontSize: 12 }}>📁 {session.sourceFileName}</Text>
-                  </div>
-                )}
 
                 <Button
                   type="primary"
                   icon={<PlayCircleOutlined />}
                   block
-                  style={{ fontWeight: 'bold', color: "#000" }}
+                  style={{ fontWeight: 'bold', color: '#000' }}
                   onClick={() => navigate(`/friendly-sessions/${session.sessionId}`)}
                 >
                   Ver Detalhes

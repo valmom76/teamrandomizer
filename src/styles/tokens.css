@@ -1247,6 +1247,18 @@ a:hover { color: var(--primary-hover); }
   color: var(--danger) !important;
 }
 
+.dashboard-btn.info.ant-btn {
+  background: var(--info);
+  border-color: var(--info);
+  color: #120a00;
+}
+
+.dashboard-btn.info.ant-btn:hover {
+  background: #1a8efc !important;
+  border-color: #1a8efc !important;
+  color: #120a00 !important;
+}
+
 /* Stats */
 
 .dashboard-stats-grid {
@@ -2278,6 +2290,15 @@ a:hover { color: var(--primary-hover); }
   font-weight: 800;
 }
 
+.players-sex-group .ant-radio-button-wrapper-checked {
+  color: #000 !important;
+  font-weight: bold !important;
+}
+
+.players-sex-group .ant-radio-button-wrapper-checked > span {
+  color: #000 !important;
+}
+
 .players-full-control {
   width: 100%;
 }
@@ -2852,6 +2873,7 @@ a:hover { color: var(--primary-hover); }
   flex-wrap: wrap;
   margin-bottom: var(--s-3);
   flex-shrink: 0;
+  margin-top: 10px;
 }
 
 .teamgen-result-title {
@@ -3980,4 +4002,12 @@ a:hover { color: var(--primary-hover); }
   .group-standings-title {
     font-size: clamp(13px, 3vw, 17px);
   }
+}
+
+.court-image-datetime {
+  font-size: 18px;
+  color: #01ff69;
+  margin-top: 4px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }

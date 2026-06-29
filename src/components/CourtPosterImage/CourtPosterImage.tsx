@@ -15,10 +15,12 @@ export interface PosterTeam {
 interface CourtPosterImageProps {
   courtName: string;
   teams: PosterTeam[];
+  sessionDate?: string;
+  sessionTime?: string;
 }
 
 export const CourtPosterImage = forwardRef<HTMLDivElement, CourtPosterImageProps>(
-  ({ courtName, teams }, ref) => {
+  ({ courtName, teams, sessionDate, sessionTime }, ref) => {
     const normalizedTeams = Array.from({ length: 4 }).map((_, index) => {
       return (
         teams[index] || {
@@ -36,6 +38,13 @@ export const CourtPosterImage = forwardRef<HTMLDivElement, CourtPosterImageProps
         <header className="court-image-header">
           <div className="court-image-line" />
           <h1>{courtName}</h1>
+          {(sessionDate || sessionTime) && (
+            <div className="court-image-datetime">
+              {sessionDate && <span>{sessionDate}</span>}
+              {sessionDate && sessionTime && <span> • </span>}
+              {sessionTime && <span>{sessionTime}</span>}
+            </div>
+          )}
         </header>
 
         <img

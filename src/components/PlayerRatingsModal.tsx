@@ -1,4 +1,4 @@
-import { Modal, Card, Space, Table, message } from "antd";
+import { Button, Modal, Card, Space, Table, message } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { listSkills } from "../api/skills";
 import type { Skill } from "../api/skills";
@@ -89,9 +89,14 @@ export default function PlayerRatingsModal({
           style={{ background: "var(--surface)", borderColor: "var(--border)" }}
         >
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-            <AppButton tone="generate" onClick={saveAll} loading={saving} disabled={loading}>
+            <Button 
+              className="dashboard-btn primary"
+              onClick={saveAll} 
+              loading={saving} 
+              disabled={loading}
+            >
               Salvar
-            </AppButton>            
+            </Button>            
             <AppButton tone="copy" onClick={onClose} disabled={saving}>
               Cancelar
             </AppButton>

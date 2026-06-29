@@ -1,29 +1,24 @@
-import { Card, Form, Input, Table, Typography, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { Card, Col, Form, Input, Row, Space, Table, message, Modal, Tag, Switch } from "antd";
 import { useEffect, useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-
-import { createSkill, listSkills } from "../api/skills";
+import { createSkill, listSkills, updateSkill } from "../api/skills";
 import type { Skill } from "../api/skills";
 import AppButton from "../components/AppButton";
-
-const { Title, Text } = Typography;
+import { CloseOutlined } from "@ant-design/icons";
 
 export default function Skills() {
-  const [form] = Form.useForm();
-  const [messageApi, contextHolder] = message.useMessage();
-
   const [items, setItems] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(false);
-  const [creating, setCreating] = useState(false);
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Skill | null>(null);
+  const [form] = Form.useForm();
 
   async function refresh() {
     setLoading(true);
-
     try {
       setItems(await listSkills());
-    } catch (error: any) {
-      messageApi.error(error?.response?.data?.error ?? "Erro ao listar skills");
+    } catch (e: any) {
+      message.error(e?.response?.data?.error ?? "Erro ao listar skills");
     } finally {
       setLoading(false);
     }
@@ -33,121 +28,128 @@ export default function Skills() {
     refresh();
   }, []);
 
-  async function onCreate(values: { name: string }) {
-    setCreating(true);
-
+  async function onCreate(values: any) {
     try {
       await createSkill(values);
-
-      messageApi.success("Skill criada com sucesso.");
-      form.resetFields();
-
+      message.success("Skill criada");
       await refresh();
-    } catch (error: any) {
-      messageApi.error(error?.response?.data?.error ?? "Erro ao criar skill");
-    } finally {
-      setCreating(false);
+    } catch (e: any) {
+      message.error(e?.response?.data?.error ?? "Erro ao criar skill");
     }
   }
 
-  const columns: ColumnsType<Skill> = [
+  const openEdit = (skill: Skill) => {
+    setEditing(skill);
+    form.setFieldsValue({ name: skill.name, active: skill.active });
+    setEditModalOpen(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!editing) return;
+    try {
+      const values = await form.validateFields();
+      await updateSkill(editing.id, values);
+      message.success("Skill atualizada");
+      setEditModalOpen(false);
+      refresh();
+    } catch (e: any) {
+      message.error(e?.response?.data?.message ?? "Erro ao atualizar");
+    }
+  };
+
+
+  const columns = [
+    { title: "Nome", dataIndex: "name", width: "50%", ellipsis: true },
     {
-      title: "Nome",
-      dataIndex: "name",
-      width: "70%",
-      ellipsis: true,
-      render: (name: string) => <span className="skill-name">{name}</span>,
+      title: "Ativa",
+      dataIndex: "active",
+      width: "20%",
+      align: "center" as const,
+      render: (active: boolean) => (
+        <Tag color={active ? "green" : "red"}>{active ? "Sim" : "Não"}</Tag>
+      ),
     },
     {
-      title: "Status",
-      dataIndex: "active",
+      title: "Ações",
+      key: "actions",
       width: "30%",
-      render: (active: boolean) => (
-        <span className={`skill-status ${active ? "active" : "inactive"}`}>
-          {active ? "Ativa" : "Inativa"}
-        </span>
+      align: "center" as const,
+      render: (_: any, record: Skill) => (
+        <Space size={[4, 4]} wrap>
+          <AppButton tone="save" onClick={() => openEdit(record)} style={{ fontSize: 12, whiteSpace: 'nowrap' }}>
+            Editar
+          </AppButton>
+        </Space>
       ),
     },
   ];
 
+  const cardBodyStyle = { padding: 'clamp(12px, 3vw, 24px)' };
+
   return (
-    <main className="skills-page">
-      {contextHolder}
-
-      <header className="skills-header">
-        <Title level={2} className="skills-title">
-          Skills
-        </Title>
-
-        <Text className="skills-subtitle">
-          Cadastre e acompanhe os critérios usados para avaliação dos atletas.
-        </Text>
-      </header>
-
-      <section className="skills-stack">
+    <div style={{ padding: 'clamp(8px, 2vw, 24px)', maxWidth: 800, margin: '0 auto' }}>
+      <Space direction="vertical" style={{ width: "100%" }} size={16}>
         <Card
-          className="skills-card"
-          title={<span className="skills-section-title">Nova Skill</span>}
+          title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)', color: '#01ff69' }}>Nova Skill</span>}
+          styles={{ body: cardBodyStyle, header: { borderBottom: '1px solid #333' } }}
+          style={{ backgroundColor: '#1a1a1a', borderColor: '#333' }}
         >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={onCreate}
-            className="skills-create-form"
-          >
-            <div className="skills-form-grid">
-              <Form.Item
-                name="name"
-                label="Nome"
-                rules={[
-                  {
-                    required: true,
-                    message: "Informe o nome da skill",
-                  },
-                ]}
-              >
-                <Input placeholder="Ex: Saque, Ataque, Defesa..." />
-              </Form.Item>
-
-              <Form.Item>
-                <div className="skills-submit">
-                  <AppButton
-                    tone="generate"
-                    htmlType="submit"
-                    disabled={creating}
-                  >
-                    <PlusOutlined />
+          <Form layout="vertical" onFinish={onCreate}>
+            <Row gutter={[12, 8]} align="bottom">
+              <Col xs={24} sm={18} md={20}>
+                <Form.Item name="name" rules={[{ required: true, message: "Informe o nome da skill" }]} label="Nome" style={{ marginBottom: 0 }}>
+                  <Input placeholder="Ex: Saque, Ataque, Defesa..." />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={6} md={4}>
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <AppButton tone="generate" htmlType="submit" style={{ width: "100%" }}>
                     Adicionar
                   </AppButton>
-                </div>
-              </Form.Item>
-            </div>
+                </Form.Item>
+              </Col>
+            </Row>
           </Form>
         </Card>
 
         <Card
-          className="skills-card skills-table-card"
-          title={<span className="skills-section-title">Skills cadastradas</span>}
+          title={<span style={{ fontSize: 'clamp(16px, 2.5vw, 18px)', color: '#01ff69' }}>Skills</span>}
+          styles={{ body: cardBodyStyle, header: { borderBottom: '1px solid #333' } }}
+          style={{ backgroundColor: '#1a1a1a', borderColor: '#333' }}
         >
-          <Table<Skill>
+          <Table
             rowKey="id"
             loading={loading}
             dataSource={items}
-            columns={columns}
-            scroll={{
-              x: "max-content",
-            }}
-            pagination={{
-              responsive: true,
-              pageSize: 10,
-              showSizeChanger: false,
-            }}
-            locale={{
-              emptyText: <div className="skills-empty">Nenhuma skill cadastrada.</div>,
-            }}
+            columns={columns as any}
+            scroll={{ x: 'max-content' }}
+            pagination={{ responsive: true, pageSize: 10, showSizeChanger: false }}
+            style={{ backgroundColor: '#1a1a1a' }}
+            rowClassName={() => 'dark-row'}
           />
         </Card>
-      </section>
-    </main>
+
+        <Modal
+          title="Editar Skill"
+          open={editModalOpen}
+          onCancel={() => setEditModalOpen(false)}
+          onOk={handleUpdate}
+          okText="Salvar"
+          cancelText="Cancelar"
+          width="min(90vw, 400px)"
+          closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
+          styles={{ body: { backgroundColor: '#1a1a1a' }, header: { backgroundColor: '#1a1a1a', color: '#01ff69' } }}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item name="name" label="Nome" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="active" label="Ativa" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Space>
+    </div>
   );
-}
+};

@@ -8,8 +8,13 @@ import {
   Select,
   Spin,
   message,
+  DatePicker,
+  TimePicker,
+  Row,
+  Col,
 } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
+import dayjs, { Dayjs } from 'dayjs';
 import * as htmlToImage from 'html-to-image';
 
 import { http } from '../../api/http';
@@ -46,7 +51,7 @@ interface CourtSetupModalProps {
   sessionId: string;
   teams: GeneratedTeam[];
   onCancel: () => void;
-  onConfirm: (courts: { name: string; teamIndices: number[] }[]) => void;
+  onConfirm: (courts: { name: string; teamIndices: number[] }[], sessionDate: string, sessionTime: string) => void;
 }
 
 export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
@@ -63,6 +68,10 @@ export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
   const [courtNames, setCourtNames] = useState<string[]>(['Quadra 1']);
   const [suggestion, setSuggestion] = useState<DistributionSuggestion | null>(null);
   const [assignments, setAssignments] = useState<Record<number, number>>({});
+
+  // Novos estados para data e hora
+  const [sessionDate, setSessionDate] = useState<Dayjs>(dayjs());
+  const [sessionTime, setSessionTime] = useState<Dayjs>(dayjs().hour(19).minute(0).second(0));
 
   useEffect(() => {
     if (!open || !sessionId) return;
@@ -238,7 +247,11 @@ export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
       });
     }
 
-    onConfirm(courts);
+    // Passa a data e hora formatadas
+    const formattedDate = sessionDate.format('YYYY-MM-DD');
+    const formattedTime = sessionTime.format('HH:mm');
+
+    onConfirm(courts, formattedDate, formattedTime);
   };
 
   return (
@@ -248,21 +261,26 @@ export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
         open={open}
         onCancel={onCancel}
         footer={[
-          <Button key="cancel" onClick={onCancel}>
+          <Button 
+            key="cancel" 
+            onClick={onCancel}
+            className="dashboard-btn warning"
+          >
             Cancelar
           </Button>,
           <Button
             key="export"
             onClick={handleExportImages}
             disabled={loadingSuggestion || allocatedCourts.length === 0}
+            className="dashboard-btn info"
           >
             Exportar Imagens
           </Button>,
           <Button
             key="submit"
-            type="primary"
             onClick={handleConfirm}
             loading={loadingSuggestion}
+            className="dashboard-btn primary"
           >
             Iniciar Sessão
           </Button>,
@@ -272,6 +290,33 @@ export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
         closeIcon={<CloseOutlined style={{ color: '#01ff69' }} />}
       >
         <Form layout="vertical">
+          {/* Data e Hora dos jogos */}
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item label="Data dos jogos">
+                <DatePicker
+                  value={sessionDate}
+                  onChange={(date) => setSessionDate(date || dayjs())}
+                  format="DD/MM/YYYY"
+                  style={{ width: '100%' }}
+                  placeholder="Selecione a data"
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item label="Horário dos jogos">
+                <TimePicker
+                  value={sessionTime}
+                  onChange={(time) => setSessionTime(time || dayjs().hour(19).minute(0))}
+                  format="HH:mm"
+                  style={{ width: '100%' }}
+                  placeholder="Selecione o horário"
+                  minuteStep={5}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
           <Form.Item label="Número de quadras">
             <InputNumber
               min={1}
@@ -342,6 +387,8 @@ export const CourtSetupModal: React.FC<CourtSetupModalProps> = ({
             }}
             courtName={court.name}
             teams={court.teams}
+            sessionDate={sessionDate.format('DD/MM/YYYY')}
+            sessionTime={sessionTime.format('HH:mm')}
           />
         ))}
       </div>

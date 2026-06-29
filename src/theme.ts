@@ -70,5 +70,9 @@ export const theme: ThemeConfig = {
     Tag: {
       borderRadiusSM: 6,
     },
+    Radio: {
+      buttonSolidCheckedBg: '#01ff69',
+      colorTextDisabled: "#FFFFFF"
+    },
   },
 };

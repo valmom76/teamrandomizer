@@ -612,23 +612,23 @@ export default function DbTeamGenerator() {
   );
 
   const handleStartSession = useCallback(
-    async (courts: { name: string; teamIndices: number[] }[]) => {
+    async (courts: { name: string; teamIndices: number[] }[], sessionDate?: string, sessionTime?: string) => {
       if (!result?.sessionId) return;
-
       try {
         await http.post("/game-sessions/start-with-courts", {
           generationSessionId: result.sessionId,
           courts,
           pointsPerSet: friendlyPointsPerSet,
           setsToWin: 1,
+          sessionDate: sessionDate || null,
+          sessionTime: sessionTime || null,
         });
-
         message.success("Sessão iniciada com sucesso!");
-
         setCourtModalOpen(false);
         navigate(`/friendly-sessions/${result.sessionId}`);
-      } catch (error: any) {
-        message.error(error?.response?.data?.message ?? "Erro ao iniciar sessão");
+      } catch (err: any) {
+        console.error(err);
+        message.error(err?.response?.data?.message ?? "Erro ao iniciar sessão");
       }
     },
     [result?.sessionId, navigate, friendlyPointsPerSet]
@@ -789,7 +789,11 @@ export default function DbTeamGenerator() {
           onChange={(event) => setPlayerQuery(event.target.value)}
         />
 
-        <Button type="primary" onClick={goNext} disabled={!canGoNext}>
+        <Button 
+          onClick={goNext} 
+          disabled={!canGoNext}
+          className="dashboard-btn primary"
+        >
           Próximo: Skills
         </Button>
       </div>
@@ -899,16 +903,21 @@ export default function DbTeamGenerator() {
         )}
 
         <div className="teamgen-result-header">
-          <Button onClick={goBackToPlayers} size={isMobile ? "small" : "middle"}>
+          <Button 
+            onClick={goBackToPlayers} 
+            size={isMobile ? "small" : "middle"}
+            styles={{content: {color: "#000"}}}
+            className="dashboard-btn primary"
+          >
             Voltar
           </Button>
 
           <Button
-            type="primary"
             onClick={generate}
             disabled={!canGenerate || generating}
             loading={generating}
             size={isMobile ? "small" : "middle"}
+            className="dashboard-btn primary"
           >
             {generating ? "Gerando..." : "Gerar Times"}
           </Button>
@@ -1010,7 +1019,11 @@ export default function DbTeamGenerator() {
             <Tag className="teamgen-count-tag">{teams.length} times</Tag>
           ) : null}
 
-          <Button onClick={resetAll} size={isMobile ? "small" : "middle"}>
+          <Button 
+            onClick={resetAll} 
+            size={isMobile ? "small" : "middle"}
+            className="dashboard-btn primary"
+          >
             Novo sorteio
           </Button>
         </div>
@@ -1034,6 +1047,7 @@ export default function DbTeamGenerator() {
                 disabled={!canGenerate || generating}
                 icon={<SwapOutlined />}
                 size={isMobile ? "small" : "middle"}
+                className="dashboard-btn primary"
               >
                 Reembaralhar
               </Button>
@@ -1041,6 +1055,7 @@ export default function DbTeamGenerator() {
               <Button
                 onClick={() => setAdjustModalOpen(true)}
                 size={isMobile ? "small" : "middle"}
+                className="dashboard-btn primary"
               >
                 Ajustar Times
               </Button>
@@ -1050,6 +1065,7 @@ export default function DbTeamGenerator() {
                 icon={<PlayCircleOutlined />}
                 onClick={() => setCourtModalOpen(true)}
                 size={isMobile ? "small" : "middle"}
+                className="dashboard-btn primary"
               >
                 Iniciar Sessão
               </Button>

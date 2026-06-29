@@ -1,11 +1,10 @@
-import { Card, Space, Table, message } from "antd";
+import { Button, Card, Space, Table, message } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { listSkills } from "../api/skills";
 import type { Skill } from "../api/skills";
 import { getCurrentRatings, upsertRatings } from "../api/ratings";
 import RatingStars from "../components/RatingStars";
-import AppButton from "../components/AppButton";
 
 type Row = Skill & { rating: number };
 
@@ -57,9 +56,14 @@ export default function PlayerRatings() {
   return (
     <Space orientation="vertical" style={{ width: "100%" }} size={16}>
       <Card title={`Ratings do jogador: ${playerId}`}>
-        <AppButton tone="generate" onClick={saveAll} loading={saving} disabled={loading}>
+        <Button 
+          className="dashboard-btn primary"
+          onClick={saveAll} 
+          loading={saving} 
+          disabled={loading}
+        >
           Salvar
-        </AppButton>
+        </Button>
       </Card>
 
       <Card title="Fundamentos">

@@ -282,8 +282,6 @@ export default function Dashboard() {
         <Avatar className="dashboard-avatar">{userInitial}</Avatar>
 
         <div className="dashboard-header-content">
-          <Text className="dashboard-kicker">Painel principal</Text>
-
           <Title level={2} className="dashboard-title">
             Seja bem-vindo(a), {auth.userName?.toUpperCase()}
           </Title>
