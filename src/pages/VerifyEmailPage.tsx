@@ -78,7 +78,10 @@ export default function VerifyEmailPage() {
                 name="password"
                 rules={[
                   { required: true, message: 'Informe a senha' },
-                  { min: 6, message: 'Mínimo de 6 caracteres' },
+                  {
+                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                    message: 'Mín. 8 caracteres, maiúscula, minúscula, número e especial (@$!%*?&)',
+                  },
                 ]}
               >
                 <Input.Password disabled={submitting} />

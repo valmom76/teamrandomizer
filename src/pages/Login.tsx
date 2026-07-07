@@ -104,6 +104,13 @@ export default function Login() {
               <Input.Password disabled={loading} />
             </Form.Item>
 
+            {/* Link de recuperação de senha */}
+            <div style={{ textAlign: "right", marginBottom: 16 }}>
+              <Link to="/forgot-password" style={{ color: '#01ff69', fontSize: 13 }}>
+                Esqueceu a senha?
+              </Link>
+            </div>
+
             <AppButton tone="generate" htmlType="submit" block loading={loading}>
               {loading ? "Entrando..." : "Entrar"}
             </AppButton>

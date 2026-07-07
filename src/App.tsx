@@ -10,6 +10,8 @@ import { authStore } from "./auth/store";
 import Login from "./pages/Login";
 import SignupTenant from "./pages/SignupTenant";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";       // ← nova
+import ResetPasswordPage from "./pages/ResetPasswordPage";         // ← nova
 import Dashboard from "./pages/Dashboard";
 import Skills from "./pages/Skills";
 import Players from "./pages/PlayersPage";
@@ -54,7 +56,6 @@ export default function App() {
     localStorage.setItem("nav:collapsed", collapsed ? "1" : "0");
   }, [collapsed]);
 
-  // Atualiza o estado de autenticação sempre que a rota mudar (login/logout)
   useEffect(() => {
     setIsAuthenticated(!!authStore.getToken());
   }, [location.pathname]);
@@ -90,114 +91,25 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignupTenant />} />
               <Route path="/verify" element={<VerifyEmailPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />   {/* ← nova */}
+              <Route path="/reset-password" element={<ResetPasswordPage />} />     {/* ← nova */}
               <Route path="/upgrade" element={<Upgrade />} />
-              {/* Rotas protegidas */}
-              <Route
-                path="/dashboard"
-                element={
-                  <RequireAuth>
-                    <Dashboard />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/performance"
-                element={
-                  <RequireAuth>
-                    <PlayerPerformancePage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/skills"
-                element={
-                  <RequireAuth>
-                    <Skills />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/positions"
-                element={
-                  <RequireAuth>
-                    <PositionsPage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/players"
-                element={
-                  <RequireAuth>
-                    <Players />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/generator"
-                element={
-                  <RequireAuth>
-                    <TeamGenerator />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/players/:playerId/ratings"
-                element={
-                  <RequireAuth>
-                    <PlayerRatings />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/sessions"
-                element={
-                  <RequireAuth>
-                    <SessionHistory />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/friendly-sessions"
-                element={
-                  <RequireAuth>
-                    <FriendlySessionsPage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/friendly-sessions/:sessionId"
-                element={
-                  <RequireAuth>
-                    <FriendlySessionDetailPage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/championships"
-                element={
-                  <RequireAuth>
-                    <ChampionshipsPage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/championships/:id"
-                element={
-                  <RequireAuth>
-                    <ChampionshipDetailPage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/manual-teams"
-                element={
-                  <RequireAuth>
-                    <ManualTeamPage />
-                  </RequireAuth>
-                }
-              />
 
-              {/* Rota coringa */}
+              {/* Rotas protegidas */}
+              <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+              <Route path="/performance" element={<RequireAuth><PlayerPerformancePage /></RequireAuth>} />
+              <Route path="/skills" element={<RequireAuth><Skills /></RequireAuth>} />
+              <Route path="/positions" element={<RequireAuth><PositionsPage /></RequireAuth>} />
+              <Route path="/players" element={<RequireAuth><Players /></RequireAuth>} />
+              <Route path="/generator" element={<RequireAuth><TeamGenerator /></RequireAuth>} />
+              <Route path="/players/:playerId/ratings" element={<RequireAuth><PlayerRatings /></RequireAuth>} />
+              <Route path="/sessions" element={<RequireAuth><SessionHistory /></RequireAuth>} />
+              <Route path="/friendly-sessions" element={<RequireAuth><FriendlySessionsPage /></RequireAuth>} />
+              <Route path="/friendly-sessions/:sessionId" element={<RequireAuth><FriendlySessionDetailPage /></RequireAuth>} />
+              <Route path="/championships" element={<RequireAuth><ChampionshipsPage /></RequireAuth>} />
+              <Route path="/championships/:id" element={<RequireAuth><ChampionshipDetailPage /></RequireAuth>} />
+              <Route path="/manual-teams" element={<RequireAuth><ManualTeamPage /></RequireAuth>} />
+
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Content>

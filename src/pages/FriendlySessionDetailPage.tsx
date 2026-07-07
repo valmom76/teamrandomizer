@@ -60,7 +60,6 @@ export default function FriendlySessionDetailPage() {
       }
     }
 
-    // Ranking de vitórias (apenas se houver partidas)
     const winsMap: Record<string, number> = {};
     teams.forEach((t: any) => {
       winsMap[t.teamName || `Time ${t.teamIndex}`] = 0;
@@ -156,7 +155,6 @@ export default function FriendlySessionDetailPage() {
             })}
           </Row>
 
-          {/* Partidas realizadas (apenas histórico) */}
           {court.matches?.length > 0 && (
             <div style={{ marginTop: 16 }}>
               <Text style={{ color: '#01ff69', fontWeight: 'bold', fontSize: 14 }}>Partidas realizadas:</Text>
@@ -259,6 +257,8 @@ export default function FriendlySessionDetailPage() {
               ?.teams.find((t: any) => t.teamIndex === scoreboardData.awayTeam)
               ?.teamName || `Time ${scoreboardData.awayTeam}`
           }
+          setsToWin={details.setsToWin || 1}
+          pointsPerSet={details.pointsPerSet || 12}
         />
       )}
     </div>
