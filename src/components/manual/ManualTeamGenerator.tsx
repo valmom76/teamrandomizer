@@ -286,6 +286,7 @@ export const ManualTeamGenerator: React.FC = () => {
             disabled={!isComplete}
             block
             icon={<TrophyOutlined />}
+            style={{ color: '#000' }}
           >
             Criar Campeonato
           </Button>
@@ -552,12 +553,21 @@ export const ManualTeamGenerator: React.FC = () => {
               </Form.Item>
 
               <Form.Item label="Alocar Times aos Grupos">
-                <div className="manual-teams-group-list">
-                  {Array.from({ length: teamCount }, (_, index) => index + 1).map(
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {Array.from({ length: teamCount }, (_, i) => i + 1).map(
                     (teamIndex) => (
-                      <div key={teamIndex} className="manual-teams-group-row">
-                        <span>{getTeamName(teamIndex)}</span>
-
+                      <div
+                        key={teamIndex}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          gap: 12,
+                        }}
+                      >
+                        <span style={{ color: '#ccc', flex: 1 }}>
+                          {getTeamName(teamIndex)}
+                        </span>
                         <Select
                           value={teamGroups[teamIndex]}
                           onChange={(value) =>
@@ -566,7 +576,7 @@ export const ManualTeamGenerator: React.FC = () => {
                               [teamIndex]: value,
                             }))
                           }
-                          className="manual-teams-group-select"
+                          style={{ width: 140 }}
                           options={Array.from(
                             { length: groupsCount },
                             (_, groupIndex) => ({
@@ -663,6 +673,7 @@ export const ManualTeamGenerator: React.FC = () => {
               block
               icon={<TrophyOutlined />}
               className="manual-teams-submit"
+              style={{ color: '#000' }}
             >
               Criar Campeonato
             </Button>

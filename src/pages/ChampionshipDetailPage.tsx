@@ -13,6 +13,7 @@ const getGroupLetter = (index: number): string => {
 
 const ChampionshipDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+
   const {
     useDetails,
     generateNextStage,
@@ -39,8 +40,11 @@ const ChampionshipDetailsPage: React.FC = () => {
   if (isLoading) return <Spin size="large" style={{ display: 'block', marginTop: 50 }} />;
   if (error) return <Alert message="Erro ao carregar detalhes" type="error" style={{ margin: 16 }} />;
   if (!data) return null;
-
+  console.log(data);
   const { championship, standingsByGroup, matchesByGroup, knockoutMatches } = data;
+
+  const isSingleSet = (championship as any).defaultSetsToWin === 1;
+
   const isKnockoutFormat = championship.format === 'KNOCKOUT';
 
   if (isKnockoutFormat && activeTab === 'groups') {
@@ -123,6 +127,7 @@ const ChampionshipDetailsPage: React.FC = () => {
         }}
       >
         {groups.map(([groupIdx, standings]) => {
+          console.log(championship.defaultSetsToWin);
           const groupIndex = parseInt(groupIdx);
           const groupMatches = matchesByGroup[groupIndex] || [];
           const isGroupComplete = groupMatches.length > 0 && groupMatches.every((m) => m.played);
@@ -133,6 +138,7 @@ const ChampionshipDetailsPage: React.FC = () => {
                 groupName={`Grupo ${getGroupLetter(groupIndex)}`}
                 qualifiedCount={qualifiedCount}
                 isGroupComplete={isGroupComplete}
+                isSingleSet={isSingleSet}
               />
             </div>
           );

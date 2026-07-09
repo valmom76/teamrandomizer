@@ -3645,7 +3645,7 @@ a:hover { color: var(--primary-hover); }
 }
 
 .manual-teams-group-select {
-  width: 150px;
+  width: 200px;
   flex-shrink: 0;
 }
 
@@ -3702,7 +3702,7 @@ a:hover { color: var(--primary-hover); }
   }
 
   .manual-teams-group-select {
-    width: 100%;
+    width: 90%;
   }
 }
 

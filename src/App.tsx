@@ -10,8 +10,8 @@ import { authStore } from "./auth/store";
 import Login from "./pages/Login";
 import SignupTenant from "./pages/SignupTenant";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";       // ← nova
-import ResetPasswordPage from "./pages/ResetPasswordPage";         // ← nova
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Dashboard from "./pages/Dashboard";
 import Skills from "./pages/Skills";
 import Players from "./pages/PlayersPage";

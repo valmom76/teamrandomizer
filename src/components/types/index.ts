@@ -58,6 +58,7 @@ export type ChampionshipResponse = {
   matchesType: string;
   status: string;
   generationSessionId?: string;
+  defaultSetsToWin?: number;
 }
 
 export type ChampionshipDetails = {

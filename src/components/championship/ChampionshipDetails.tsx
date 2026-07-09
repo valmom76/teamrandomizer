@@ -117,7 +117,7 @@ const ChampionshipDetailsPage: React.FC = () => {
   const tabItems = [
     {
       key: 'groups',
-      label: 'Grupos',
+      label: 'Grupos 2',
       children: renderGroups(),
     },
     {
