@@ -1037,10 +1037,6 @@ export default function DbTeamGenerator() {
       ) : teams.length ? (
         <>
           <div className="teamgen-generated-toolbar">
-            <span className="teamgen-session">
-              Session: <span>{result?.sessionId}</span>
-            </span>
-
             <div className="teamgen-actions">
               <Button
                 onClick={generate}

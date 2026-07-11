@@ -173,9 +173,20 @@ export default function Players() {
 
       await refresh();
     } catch (error: any) {
-      messageApi.error(
-        error?.response?.data?.message ?? "Erro ao criar jogador"
-      );
+      const status = error?.response?.status;
+        const errorMessage =
+          error?.response?.data?.error ||  
+          error?.response?.data?.message ||
+          'Erro ao criar jogador';
+
+        if (status === 402) {
+          messageApi.warning({
+            content: errorMessage,
+            duration: 8,
+          });
+        } else {
+          messageApi.error(errorMessage);
+        }
     } finally {
       setCreating(false);
     }

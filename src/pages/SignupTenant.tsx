@@ -67,7 +67,7 @@ export default function SignupTenant() {
             </Form.Item>
 
             <Form.Item
-              label="Identificador (slug)"
+              label="Identificador"
               name="tenantSlug"
               rules={[
                 { required: true, message: "Informe um identificador único" },
@@ -102,7 +102,7 @@ export default function SignupTenant() {
             </AppButton>            
           </Form>
 
-          <div style={{ textAlign: "center" }}>
+          <div style={{ textAlign: "center", marginTop: 16 }}>
             <Link to="/login">Já possui uma conta? Faça login</Link>
           </div>
         </Card>
