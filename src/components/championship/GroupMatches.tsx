@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, Button, message, Typography } from 'antd';
 import { PlayCircleOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
@@ -13,6 +13,263 @@ interface Props {
   groupName: string;
   onMatchPlayed?: () => void;
 }
+
+interface ScheduleState {
+  orderedIndexes: number[];
+  remainingIndexes: number[];
+  playedCount: Map<number, number>;
+  lastPlayedAt: Map<number, number>;
+  cost: number;
+}
+
+const orderMatchesEvenly = (
+  matches: MatchDetails[],
+): MatchDetails[] => {
+  if (matches.length <= 2) {
+    return [...matches];
+  }
+
+  const totalMatches = matches.length;
+  const totalGamesByTeam = new Map<number, number>();
+
+  /*
+   * Calcula quantos jogos cada time possui no grupo.
+   */
+  matches.forEach((match) => {
+    totalGamesByTeam.set(
+      match.homeTeamIndex,
+      (totalGamesByTeam.get(match.homeTeamIndex) ?? 0) + 1,
+    );
+
+    totalGamesByTeam.set(
+      match.awayTeamIndex,
+      (totalGamesByTeam.get(match.awayTeamIndex) ?? 0) + 1,
+    );
+  });
+
+  /*
+   * Retorna a posição ideal da participação de um time.
+   *
+   * Exemplo:
+   * Se o time possui 3 jogos em uma tabela de 12 partidas,
+   * suas posições ideais ficam aproximadamente em:
+   *
+   * 1,5 — 5,5 — 9,5
+   *
+   * Isso evita que o time faça todos os jogos no começo.
+   */
+  const getIdealPosition = (
+    occurrenceIndex: number,
+    totalTeamGames: number,
+  ) => {
+    return (
+      ((occurrenceIndex + 0.5) * totalMatches) /
+        totalTeamGames -
+      0.5
+    );
+  };
+
+  const getRestPenalty = (
+    teamIndex: number,
+    position: number,
+    lastPlayedAt: Map<number, number>,
+  ) => {
+    const lastPosition = lastPlayedAt.get(teamIndex);
+
+    if (lastPosition === undefined) {
+      return 0;
+    }
+
+    const matchesBetween = position - lastPosition - 1;
+
+    /*
+     * Penalidades:
+     *
+     * 0 partidas de intervalo: time joga novamente imediatamente.
+     * 1 partida de intervalo: permitido, mas pouco desejável.
+     * 2 partidas de intervalo: pequena penalidade.
+     */
+    if (matchesBetween === 0) {
+      return 10_000;
+    }
+
+    if (matchesBetween === 1) {
+      return 120;
+    }
+
+    if (matchesBetween === 2) {
+      return 30;
+    }
+
+    return 0;
+  };
+
+  /*
+   * Beam Search:
+   *
+   * Em vez de escolher apenas a próxima melhor partida,
+   * mantém várias sequências possíveis e compara o resultado
+   * acumulado de cada uma.
+   */
+  const beamWidth =
+    totalMatches <= 16
+      ? 600
+      : totalMatches <= 30
+        ? 350
+        : 200;
+
+  let states: ScheduleState[] = [
+    {
+      orderedIndexes: [],
+      remainingIndexes: matches.map((_, index) => index),
+      playedCount: new Map(),
+      lastPlayedAt: new Map(),
+      cost: 0,
+    },
+  ];
+
+  for (
+    let position = 0;
+    position < totalMatches;
+    position += 1
+  ) {
+    const nextStates: ScheduleState[] = [];
+
+    states.forEach((state) => {
+      state.remainingIndexes.forEach((matchIndex) => {
+        const match = matches[matchIndex];
+
+        const homeTeamIndex = match.homeTeamIndex;
+        const awayTeamIndex = match.awayTeamIndex;
+
+        const homeOccurrence =
+          state.playedCount.get(homeTeamIndex) ?? 0;
+
+        const awayOccurrence =
+          state.playedCount.get(awayTeamIndex) ?? 0;
+
+        const homeTotalGames =
+          totalGamesByTeam.get(homeTeamIndex) ?? 1;
+
+        const awayTotalGames =
+          totalGamesByTeam.get(awayTeamIndex) ?? 1;
+
+        const homeIdealPosition = getIdealPosition(
+          homeOccurrence,
+          homeTotalGames,
+        );
+
+        const awayIdealPosition = getIdealPosition(
+          awayOccurrence,
+          awayTotalGames,
+        );
+
+        /*
+         * Quanto mais distante da posição ideal,
+         * maior será o custo da partida nessa posição.
+         */
+        const positionPenalty =
+          Math.abs(position - homeIdealPosition) +
+          Math.abs(position - awayIdealPosition);
+
+        /*
+         * Evita que um time jogue novamente com pouco descanso.
+         */
+        const restPenalty =
+          getRestPenalty(
+            homeTeamIndex,
+            position,
+            state.lastPlayedAt,
+          ) +
+          getRestPenalty(
+            awayTeamIndex,
+            position,
+            state.lastPlayedAt,
+          );
+
+        const nextPlayedCount = new Map(state.playedCount);
+
+        nextPlayedCount.set(
+          homeTeamIndex,
+          homeOccurrence + 1,
+        );
+
+        nextPlayedCount.set(
+          awayTeamIndex,
+          awayOccurrence + 1,
+        );
+
+        /*
+         * Verifica se algum time está fazendo seus jogos
+         * rápido demais ou ficando atrasado em relação aos outros.
+         */
+        let distributionPenalty = 0;
+
+        totalGamesByTeam.forEach(
+          (totalTeamGames, teamIndex) => {
+            const actualGames =
+              nextPlayedCount.get(teamIndex) ?? 0;
+
+            const expectedGames =
+              ((position + 1) * totalTeamGames) /
+              totalMatches;
+
+            const difference =
+              actualGames - expectedGames;
+
+            distributionPenalty += difference * difference;
+          },
+        );
+
+        const nextLastPlayedAt = new Map(
+          state.lastPlayedAt,
+        );
+
+        nextLastPlayedAt.set(homeTeamIndex, position);
+        nextLastPlayedAt.set(awayTeamIndex, position);
+
+        nextStates.push({
+          orderedIndexes: [
+            ...state.orderedIndexes,
+            matchIndex,
+          ],
+
+          remainingIndexes:
+            state.remainingIndexes.filter(
+              (index) => index !== matchIndex,
+            ),
+
+          playedCount: nextPlayedCount,
+          lastPlayedAt: nextLastPlayedAt,
+
+          cost:
+            state.cost +
+            positionPenalty * 15 +
+            distributionPenalty * 10 +
+            restPenalty +
+            matchIndex * 0.000001,
+        });
+      });
+    });
+
+    /*
+     * Mantém somente as melhores sequências encontradas até aqui.
+     */
+    nextStates.sort((a, b) => a.cost - b.cost);
+
+    states = nextStates.slice(0, beamWidth);
+  }
+
+  const bestState = states[0];
+
+  if (!bestState) {
+    return [...matches];
+  }
+
+  return bestState.orderedIndexes.map(
+    (matchIndex) => matches[matchIndex],
+  );
+};
 
 export const GroupMatches: React.FC<Props> = ({ matches, championshipId, groupName, onMatchPlayed }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,6 +298,14 @@ export const GroupMatches: React.FC<Props> = ({ matches, championshipId, groupNa
       : match.winnerTeamIndex === match.awayTeamIndex;
   };
 
+  const interleavedMatches = useMemo(() => {
+    if (!matches?.length) {
+      return [];
+    }
+
+    return orderMatchesEvenly(matches);
+  }, [matches]);
+
   return (
     <Card
       title={
@@ -54,7 +319,7 @@ export const GroupMatches: React.FC<Props> = ({ matches, championshipId, groupNa
         body: { padding: isMobile ? 8 : 'clamp(8px, 2vw, 16px)' },
       }}
     >
-      {matches.map((match) => (
+      {interleavedMatches.map((match) => (
         <div
           key={match.matchId}
           style={{
